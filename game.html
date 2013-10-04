@@ -53,6 +53,9 @@
 		changeX = startX-endX;
 		changeY = startY-endY;
 
+		document.getElementById('change-x').innerHTML = changeX;
+		document.getElementById('change-y').innerHTML = changeY;
+
 
 		if (Math.abs(changeX) < 7 && Math.abs(changeY) < 7) {
 			type = "Tap";
