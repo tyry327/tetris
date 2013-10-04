@@ -8,21 +8,33 @@
 
 <body>
 
-	<p>X coordinate of touch start is <span id="xcoord"></span></p>
-	<p>Y coordinate of touch start is <span id="ycoord"></span></p>
+	<p>X coordinate of touch start is <span id="start-x"></span></p>
+	<p>Y coordinate of touch start is <span id="start-y"></span></p>
 
-	<p>X coordinate of touch start is <span id="xcoord-end"></span></p>
-	<p>Y coordinate of touch end is <span id="ycoord-end"></span></p>
+	<p>X coordinate of touch start is <span id="end-x"></span></p>
+	<p>Y coordinate of touch end is <span id="end-y"></span></p>
+
+	<p>The change in X is <span id="change-x"></span></p>
+	<p>The change in Y is <span id="change-y"></span></p>
+
+	<p>Touch type is <span id="type"></span>
 
 
 <script>
+	var startX;
+	var startY;
+
 	function touchStart(e)
 	{
 		e.preventDefault();
 
 		var touch = e.changedTouches[0];
-		document.getElementById('xcoord').innerHTML = touch.clientX;
-		document.getElementById('ycoord').innerHTML = touch.clientY;
+		
+		startX = touch.clientX;
+		startY = touch.clientY;
+		
+		document.getElementById('start-x').innerHTML = startX;
+		document.getElementById('start-y').innerHTML = startY;
 
 	}
 
@@ -31,8 +43,40 @@
 		e.preventDefault();
 
 		var touch = e.changedTouches[0];
-		document.getElementById('xcoord-end').innerHTML = touch.clientX;
-		document.getElementById('ycoord-end').innerHTML = touch.clientY;
+		
+		endX = touch.clientX;
+		endY = touch.clientY;
+		
+		document.getElementById('end-x').innerHTML = endX;
+		document.getElementById('end-y').innerHTML = endY;
+
+		changeX = startX-endX;
+		changeY = startY-endY;
+
+
+		if (Math.abs(changeX) < 7 && Math.abs(changeY) < 7) {
+			type = "Tap";
+		}
+		else {
+			if (Math.abs(changeX) > Math.abs(changeY)) {
+				if (changeX > 0) {
+					type = "Swipe left";
+				}
+				else {
+					type = "Swipe right";
+				}
+			}
+			else {
+				if (changeY > 0) {
+					type = "Swipe up";
+				}
+				else {
+					type = "Swipe down";
+				}
+			}
+		}
+
+		document.getElementById('type').innerHTML = type;
 
 	}
 
