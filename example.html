@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Touch Example</title>
+</head>
+
+<body onload="startup()">
+	<canvas id="canvas" width="600" height="600" style="border:solid black 1px;">
+	  You really badly need to use a different browser.
+	</canvas>
+	<br>
+	<button onclick="startup()">Initialize</button>
+	<br>
+	Log: <pre id="log" style="border: 1px solid #ccc;"></pre>
+
+<script>
+	function startup() {
+	  var el = document.getElementsByTagName("canvas")[0];
+	  el.addEventListener("touchstart", handleStart, false);
+	  el.addEventListener("touchend", handleEnd, false);
+	  el.addEventListener("touchcancel", handleCancel, false);
+	  el.addEventListener("touchleave", handleEnd, false);
+	  el.addEventListener("touchmove", handleMove, false);
+	  log("initialized.");
+}
+
+</script>
+</body>
+
+</html>
