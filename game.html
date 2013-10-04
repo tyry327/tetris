@@ -8,23 +8,36 @@
 
 <body>
 
-	<p>X coordinate of touch is <span id="xcoord"></span></p>
-	<p>Y coordinate of touch is <span id="ycoord"></span></p>
+	<p>X coordinate of touch start is <span id="xcoord"></span></p>
+	<p>Y coordinate of touch start is <span id="ycoord"></span></p>
 
-<script type="text/javascript">
+	<p>X coordinate of touch start is <span id="xcoord-end"></span></p>
+	<p>Y coordinate of touch end is <span id="ycoord-end"></span></p>
 
+
+<script>
 	function touchStart(e)
 	{
-		e.preventDefault(); 		// prevent scrolling or swiping between browser tabs
+		e.preventDefault();
+
 		var touch = e.changedTouches[0];
 		document.getElementById('xcoord').innerHTML = touch.clientX;
 		document.getElementById('ycoord').innerHTML = touch.clientY;
 
 	}
 
+	function touchEnd(e)
+	{
+		e.preventDefault();
+
+		var touch = e.changedTouches[0];
+		document.getElementById('xcoord-end').innerHTML = touch.clientX;
+		document.getElementById('ycoord-end').innerHTML = touch.clientY;
+
+	}
+
 	window.addEventListener('touchstart', touchStart, false);
-
-
+	window.addEventListener('touchend', touchEnd, false);
 </script>
 </body>
 </html>
