@@ -22,11 +22,18 @@
 
 
 	function orientationCheck (e) {
+		if (window.matchMedia("(orientation: portrait)").matches) {
+			o = "Portrait";
+		}
+		else {
+			o = "Landscape";
+		}
+
 		document.getElementById('orientation').innerHTML =
 			"<li>Alpha: " + parseInt(e.alpha) + "</li>" +
 			"<li>Beta: " + parseInt(e.beta) + "</li>" +
 			"<li>Gamma: " + parseInt(e.gamma) + "</li>" +
-			"<li>Orientation: " + window.orientation + "</li>";
+			"<li>Orientation: " + o + "</li>";
 	}
 
 	function calibrate (e) {
