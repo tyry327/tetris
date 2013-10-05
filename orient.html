@@ -8,7 +8,9 @@
 
 <body>
 
-	
+	<p>Initial screen size is: <span id="width"></span> pixels wide by <span id="height"></span> pixels high.</p>
+
+	<p>Initial orientation is: <span id="initial-orientation"></span></p>
 
 	<p>Device orientation is:</p>
 	<ul id="orientation"></ul>
@@ -20,6 +22,14 @@
 
 <script>
 
+	window.onload = function () {
+		width = window.innerWidth;
+		height = window.innerHeight;
+		document.getElementById('width').innerHTML = width;
+		document.getElementById('height').innerHTML = height;
+
+		document.getElementById('initial-orientation').innerHTML = (width > height ? "Landscape" : "Portrait");
+	}
 
 	function orientationCheck (e) {
 		if (window.matchMedia("(orientation: portrait)").matches) {
