@@ -7,24 +7,47 @@
 </head>
 
 <body>
+	
+<!--Set up -->
+	<h3>Setup</h3>
 
-	<p>X coordinate of touch start is <span id="start-x"></span></p>
-	<p>Y coordinate of touch start is <span id="start-y"></span></p>
+	<p>Draw a pit 
+		<span id="width"></span> pixels wide by 
+		<span id="height"></span> pixels high.
+	</p>
 
-	<p>X coordinate of touch start is <span id="end-x"></span></p>
-	<p>Y coordinate of touch end is <span id="end-y"></span></p>
+<!--Game Play -->
+	<h3>Game Play</h3>
 
-	<p>The change in X is <span id="change-x"></span></p>
-	<p>The change in Y is <span id="change-y"></span></p>
+	<p>Block <span id="action"></span></p>
 
-	<p>Touch type is <span id="type"></span>
+<!--If screen orientation changes-->
+	<h3>Orientation Change</h3>
 
-	<p>Device orientation is:</p>
-	<ul id="orientation"></ul>
-
-	<p id="calibrate"></p>
+	<p id ="change"></p>
 
 <script>
+	var initialOrientation = "";
+
+	// On page load, get the width and height of the browser window,
+	// draw a pit of the appropriate dimensions
+	// and set initialOrientation to portrait or landscape accordingly
+
+	window.onload = function () {
+
+		width = window.innerWidth;
+		height = window.innerHeight;
+
+		document.getElementById('width').innerHTML = width;
+		document.getElementById('height').innerHTML = height;
+
+		initialOrientation = (width > height ? "landscape" : "portrait");
+	}
+
+	//
+	// Swipe and tap detection
+	//
+
 	var startX;
 	var startY;
 
@@ -36,9 +59,6 @@
 		
 		startX = touch.clientX;
 		startY = touch.clientY;
-		
-		document.getElementById('start-x').innerHTML = startX;
-		document.getElementById('start-y').innerHTML = startY;
 
 	}
 
@@ -50,58 +70,65 @@
 		
 		endX = touch.clientX;
 		endY = touch.clientY;
-		
-		document.getElementById('end-x').innerHTML = endX;
-		document.getElementById('end-y').innerHTML = endY;
 
 		changeX = startX-endX;
 		changeY = startY-endY;
 
-		document.getElementById('change-x').innerHTML = changeX;
-		document.getElementById('change-y').innerHTML = changeY;
-
-
-		if (Math.abs(changeX) < 7 && Math.abs(changeY) < 7) {	// Tap
-			type = "Tap";
+		if (Math.abs(changeX) < 7 && Math.abs(changeY) < 7) {	// KEEP TESTING THIS THRESHOLD
+			action = "rotates clockwise";						// Tap
 		}
 		else {
-			if (Math.abs(changeX) > Math.abs(changeY)) {	 // Left or right swipe
+			if (Math.abs(changeX) > Math.abs(changeY)) {
 				if (changeX > 0) {
-					type = "Swipe left";
+					action = "moves left";						// Left swipe
 				}
 				else {
-					type = "Swipe right";
+					action = "moves right";						// Right swipe
 				}
 			}
-			else {											// Up or down swipe
+			else {
 				if (changeY > 0) {
-					type = "Swipe up";
+					action = "rotates counter-clockwise";		// Up swipe
 				}
 				else {
-					type = "Swipe down";
+					action = "accelerates down";				// Down swipe
 				}
 			}
 		}
 
-		document.getElementById('type').innerHTML = type;
-
+		document.getElementById('action').innerHTML = action;
 	}
+
+	// Track whether the browser window orientation changes.
+	// Note: I don't care if the phone orientation has changed
+	// unless the browser window orientation has also changed. 
+	// If the user wants to play while lying in bed, no big deal 
+	// as long as she has the device orientation locked --
+	// in which case I don't want to interrupt game play.
 
 	function orientationCheck (e) {
-		document.getElementById('orientation').innerHTML =
-			"<li>Alpha: " + parseInt(e.alpha) + "</li>" +
-			"<li>Beta: " + parseInt(e.beta) + "</li>" +
-			"<li>Gamma: " + parseInt(e.gamma) + "</li>";
-	}
+		
+		// Get current orientation of browser window
 
-	function calibrate (e) {
-		document.getElementById('calibrate').innerHTML = "Compass needs calibration!";
+		if (window.matchMedia("(orientation: portrait)").matches) {
+			newOrientation = "portrait";
+		}
+		else {
+			newOrientation = "landscape";
+		}
+
+		// If the current orientation does not match the initial orientation, pause and alert
+		
+		if (initialOrientation != newOrientation) {
+			document.getElementById('change').innerHTML = "Your browser window has changed from " + initialOrientation + " to " + newOrientation + ". Please return your device to its original position, lock your screen orientation, or start a new game to play in " + newOrientation + "mode.";
+		} 
 	}
 
 	window.addEventListener('touchstart', touchStart, false);
 	window.addEventListener('touchend', touchEnd, false);
 	window.addEventListener('deviceorientation', orientationCheck, false);
-	window.addEventListener('compassneedscalibration', calibrate, true);
+
+
 </script>
 </body>
 </html>
