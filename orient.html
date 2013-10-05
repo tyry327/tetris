@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+	<title>You're Playing Tetris!</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+</head>
+
+<body>
+
+	
+
+	<p>Device orientation is:</p>
+	<ul id="orientation"></ul>
+	
+	<p id="calibrate"></p>
+
+
+
+
+<script>
+
+
+	function orientationCheck (e) {
+		document.getElementById('orientation').innerHTML =
+			"<li>Alpha: " + parseInt(e.alpha) + "</li>" +
+			"<li>Beta: " + parseInt(e.beta) + "</li>" +
+			"<li>Gamma: " + parseInt(e.gamma) + "</li>" +
+			"<li>Orientation: " + window.orientation + "</li>";
+	}
+
+	function calibrate (e) {
+		document.getElementById('calibrate').innerHTML = "Compass needs calibration!";
+	}
+
+	window.addEventListener('deviceorientation', orientationCheck, false);
+	window.addEventListener('compassneedscalibration', calibrate, true);
+</script>
+</body>
+</html>
