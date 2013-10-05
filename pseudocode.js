@@ -1,3 +1,17 @@
+//
+// REMEMBER / TIPS
+//
+// Add feature support checks
+// Hardware acceleration for animation
+// Data URIs for images, or sprites
+// RequestAnimationFrame() for animations
+// e.preventDefault() , cancelBubble() for IE (look up IE spelling)
+// Debugging with try/catch or "I'm still here" alert
+// Look into HTML5 web SQL database
+
+
+
+
 Pit
 	portrait
 		10 columns

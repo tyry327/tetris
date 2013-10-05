@@ -19,9 +19,6 @@
 
 	<p>Touch type is <span id="type"></span>
 
-	<p>Device orienation is:</p>
-	<ul id="orientation"></ul>
-
 
 <script>
 	var startX;
@@ -86,16 +83,8 @@
 
 	}
 
-	function orientationCheck (e) {
-		document.getElementById('orientation').innerHTML =
-			"<li>Alpha: " + e.alpha + "</li>" +
-			"<li>Beta: " + e.beta + "</li>" +
-			"<li>Gamma: " + e.gamma + "</li>";
-	}
-
 	window.addEventListener('touchstart', touchStart, false);
 	window.addEventListener('touchend', touchEnd, false);
-	window.addEventListener('deviceorientation', orientationCheck, false);
 </script>
 </body>
 </html>
