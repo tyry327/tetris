@@ -3,28 +3,39 @@
 <head>
 	<title>Pit Building</title>
 </head>
-<body onload="pit(10,15)">
+<body>
 
 <div id="pit"></div>
 
 <script>
+	var matrix = new Array();
 	function pit(w,h) {
-		var pitArray = "[";
+
 		for (var i = 0; i < h; i++) {
-			pitArray += "[";
+			matrix[i] = new Array();
 			for (var j = 0; j < w; j++) {
-				pitArray += "0,";
+				matrix[i][j] = "0";
 			}
-			pitArray += "0],";
 		}
-		pitArray = pitArray.substring(0, pitArray.length - 1);
-		pitArray += "]";
-		return pitArray;
+
+		return matrix;
 	}
 
-	document.getElementById('pit').innerHTML = "Here's the pit!"
+	function printPit(){
+		var matrixHTML = "<pre>"
+		for (i = 0; i < matrix.length; i++) {
+			for (j = 0; j < matrix[i].length; j++) {
+				matrixHTML += String(matrix[i][j]) + " ";
+			}
+			matrixHTML += "\n";
+		}
+		matrixHTML += "</pre>"
+		return matrixHTML;
+	}
+	pit(10,15);
+	document.getElementById('pit').innerHTML = "Here's the pit: <br>" + printPit();
 
 </script>
 
 </body>
-</html>
+</html>  

@@ -1,21 +1,60 @@
 //
 // REMEMBER / TIPS
 //
-// Add feature support checks
+// Add feature support checks:
+	window.TouchEvent.isPresent();
+	window.WebSocket.isPresent();
+	navigator.geolocation.isPresent();
+	window.DeviceOrientationEvent.isPresent();
+	window.localStorage.isPresent();
+	window.openDatabase.isPresent();
 // Hardware acceleration for animation
 // Data URIs for images, or sprites
 // RequestAnimationFrame() for animations
 // e.preventDefault() , cancelBubble() for IE (look up IE spelling)
 // Debugging with try/catch or "I'm still here" alert
 // Look into HTML5 web SQL database
+// Websocket URL: http://technologeeks.com/e65/submit.php?user=<fill_your_name_here>
 
 
+Get screen orientation - portrait or landscape
 
+If landscape
+	width = 15
+	height = 10
+If portrait
+	width = 10
+	height = 15
 
-Pit
-	portrait
-		10 columns
-		15 rows
+pit object
+	depth
+	width
+	matrix
+		array of 0s based on depth and width 
+	getFirstOccupiedRowForColumn(column)
+		for (var row = 0; row < height; row++) {
+			if (matrix[row][column] != 0) {
+				firstOccupiedRow = row;
+				break; 
+			}
+			return firstOccupiedRow;
+		}
+	getFirstOccupiedColumnToRightForRow(currentColumn, row)
+		for (var column = currentColumn + 1; column < width; column++) {
+			if (matrix[row][column] != 0) {
+				firstOccupiedColumn = column;
+				break; 
+			}
+			return firstOccupiedColumn;
+		}
+	getFirstOccupiedColumnToLeftForRow(currentColumn, row)
+		for (var column = currentColumn - 1; column >= 0; column--) {
+			if (matrix[row][column] != 0) {
+				firstOccupiedColumn = column;
+				break; 
+			}
+			return firstOccupiedColumn;
+		}
 
 function Pit(height, width) {
 	this.height = height;
