@@ -19,7 +19,7 @@
 <!--Game Play -->
 	<h3>Game Play</h3>
 
-	<p>Block <span id="action"></span></p>
+	<p>Cube <span id="drop">appears in row 0</span> and <span id="action">...</span></p>
 
 <!--If screen orientation changes-->
 	<h3>Orientation Change</h3>
@@ -100,7 +100,7 @@
 	}
 
 	// Track whether the browser window orientation changes.
-	// Note: I don't care if the phone orientation has changed
+	// Note: We don't care if the phone orientation has changed
 	// unless the browser window orientation has also changed. 
 	// If the user wants to play while lying in bed, no big deal 
 	// as long as she has the device orientation locked --
@@ -108,7 +108,7 @@
 
 	function orientationCheck (e) {
 		
-		// Get current orientation of browser window
+		// Get current orientation of browser windows
 
 		if (window.matchMedia("(orientation: portrait)").matches) {
 			newOrientation = "portrait";
@@ -118,9 +118,9 @@
 		}
 
 		// If the current orientation does not match the initial orientation, pause and alert
-		
+
 		if (initialOrientation != newOrientation) {
-			document.getElementById('change').innerHTML = "Your browser window has changed from " + initialOrientation + " to " + newOrientation + ". Please return your device to its original position, lock your screen orientation, or start a new game to play in " + newOrientation + "mode.";
+			document.getElementById('change').innerHTML = "Your browser window has changed from " + initialOrientation + " to " + newOrientation + ". Please return your device to its original position, lock your screen orientation, or start a new game to play in " + newOrientation + " mode.";
 		} 
 	}
 

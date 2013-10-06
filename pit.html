@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Pit Building</title>
+</head>
+<body onload="pit(10,15)">
+
+<div id="pit"></div>
+
+<script>
+	function pit(w,h) {
+		var pitArray = "[";
+		for (var i = 0; i < 15; i++) {
+			pitArray += "[";
+			for (var j = 0; j < 10; j++) {
+				pitArray += "0,";
+			}
+			pitArray += "0],";
+		}
+		pitArray = pitArray.substring(0, pitArray.length - 1);
+		pitArray += "]";
+		return pitArray;
+	}
+
+	document.getElementById('pit').innerHTML = "Here's the pit!"
+
+</script>
+
+</body>
+</html>
