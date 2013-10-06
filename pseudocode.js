@@ -27,10 +27,10 @@ If portrait
 	height = 15
 
 pit object
-	depth
+	height
 	width
 	matrix
-		array of 0s based on depth and width 
+		array of 0s based on height and width 
 	getFirstOccupiedRowForColumn(column)
 		for (var row = 0; row < height; row++) {
 			if (matrix[row][column] != 0) {
