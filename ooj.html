@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Object Testing</title>
+</head>
+<body>
+
+<div id="output"></div>
+<div id="output2"></div>
+<div id="pit"></div>
+<script>
+
+function pit(orientation) {
+	this.orientation = orientation;
+	this.width = (this.orientation == "landscape" ? 15 : 10);
+	this.foo = "bar";
+	this.myMethod = function(input) {
+		return input;
+	}
+}
+
+var myPit = new pit("landscape");
+
+var output = myPit.orientation + myPit.foo +myPit.myMethod("poop");
+
+document.getElementById('output').innerHTML = output;
+
+var meow = "Juniper";
+
+var myCat = {
+	cat: meow,
+	meow: function(name) {
+		alert("Meow, " + name + ", this is " + this.cat);
+	}
+}
+
+document.getElementById('output2').innerHTML = myCat.cat;
+myCat.meow("Johanna");
+myCat.cat = "Ms. Juniper";
+myCat.meow("Johanna");
+
+	function pitTemplate(orientation) {
+		
+		// Set width and height of pit based on screen orientation
+		this.w = (this.orientation == "landscape" ? 15 : 10);
+		this.h = (this.orientation == "landscape" ? 10 : 15);
+		
+		// Create pit array based on width and height
+		this.matrix = new Array();
+		for (var i = 0; i < this.h; i++) {
+			this.matrix[i] = new Array();
+			for (var j = 0; j < this.w; j++) {
+				this.matrix[i][j] = "0";
+			}
+		};
+
+		this.printPit = function() {
+			var matrixHTML = "<pre>"
+			for (i = 0; i < this.h; i++) {
+				for (j = 0; j < this.w; j++) {
+					matrixHTML += String(this.matrix[i][j]) + " ";
+				}
+				matrixHTML += "\n";
+			}
+			matrixHTML += "</pre>"
+			document.getElementById('pit').innerHTML = matrixHTML;
+		}
+	}
+
+	var pit = new pitTemplate("landscape");
+	pit.printPit();
+</script>
+
+</body>
+</html>

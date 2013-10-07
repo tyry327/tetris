@@ -7,19 +7,25 @@
 
 <div id="pit"></div>
 
+<p id="blockreport"></p>
+
+<button onclick="moveLeft()">Move Left</button>
+<button onclick="moveRight()">Move Right</button>
+<button id="pause" onclick="pause()">Pause</button>
+
 <script>
+
 	var matrix = new Array();
+	var paused = false;
 
 	// Create pit array based on depth and width
 	function createPit(w,h) {
-
 		for (var i = 0; i < h; i++) {
 			matrix[i] = new Array();
 			for (var j = 0; j < w; j++) {
 				matrix[i][j] = "0";
 			}
 		}
-
 		return matrix;
 	}
 
@@ -36,9 +42,9 @@
 		return matrixHTML;
 	}
 
-	function getLastFreeRowForColumn(column) {
+	function getLastFreeRowForColumn(currentRow,column) {
 		var lastFreeRow = matrix.length-1;
-		for (var row = 0; row < matrix.length; row++) {
+		for (var row = currentRow+1; row < matrix.length; row++) {
 			if (matrix[row][column] != "0") {
 				lastFreeRow = row-1;
 				return lastFreeRow;
@@ -69,8 +75,98 @@
 		return lastFreeColumn;
 	}
 
+	function checkRow(row) {
+		for (var column = 0; column < matrix[0].length; column++) {
+			if (matrix[row][column] == "0") {
+				return false;
+			} 
+		}
+		return true;
+	}
+
+
 	createPit(10,15);
 	document.getElementById('pit').innerHTML = "Here's the pit! <br>" + printPit();
+
+	function newBlock () {
+		blockType = "cube";
+		blockTop = 0;
+		blockLeft = (parseInt(matrix[0].length))/2-1; 
+		matrix[blockTop][blockLeft] = "X";
+		document.getElementById('pit').innerHTML = "Here's the pit! <br>" + printPit();
+		window.setTimeout(drop,1000);
+	}
+
+	function drop() {
+		if (!paused) {
+			var lastFreeRow = getLastFreeRowForColumn(blockTop,blockLeft);
+			if (blockTop < lastFreeRow) {
+				blockTop += 1;
+				document.getElementById('blockreport').innerHTML = 'Block is at row ' + blockTop;
+				matrix[blockTop-1][blockLeft] = "0";
+				matrix[blockTop][blockLeft] = "X";
+				document.getElementById('pit').innerHTML = "Here's the pit! <br>" + printPit();
+				window.setTimeout(drop,250);
+			}
+			else {
+				document.getElementById('blockreport').innerHTML = 'Block is at row ' + blockTop + ' and is done dropping';
+				checkRows(blockTop);
+			}
+		}
+	}
+
+	function checkRows(topRow) {
+		for (i = matrix.length-1; i >= topRow; i--) {
+			var full = true;
+			for (j = 0; j < matrix[0].length; j++) {
+				if (matrix[i][j] == "0") {
+					full = false;
+				}
+			}
+			if (full) {
+				matrix.splice(i,1);
+				matrix.unshift(["0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]);
+				document.getElementById('pit').innerHTML = "Here's the pit! <br>" + printPit();
+				return checkRows(topRow-1);
+			}
+		}
+		newBlock();
+	}
+
+	function moveRight() {
+		var lastFreeColumn = getLastFreeColumnToRightForRow(blockLeft,blockTop);
+		if (blockLeft < lastFreeColumn) {
+			blockLeft += 1;
+			matrix[blockTop][blockLeft-1] = "0";
+			matrix[blockTop][blockLeft] = "X";
+			document.getElementById('pit').innerHTML = "Here's the pit! <br>" + printPit();
+		}
+	}
+
+	function moveLeft() {
+		var lastFreeColumn = getLastFreeColumnToLeftForRow(blockLeft,blockTop);
+		if (blockLeft > lastFreeColumn) {
+			blockLeft -= 1;
+			matrix[blockTop][blockLeft+1] = "0";
+			matrix[blockTop][blockLeft] = "X";
+			document.getElementById('pit').innerHTML = "Here's the pit! <br>" + printPit();
+		}
+	}
+
+	function pause() {
+		if (!paused) {
+			paused = true;
+			document.getElementById('pause').innerHTML = "Resume";
+		}
+		else {
+			paused = false;
+			document.getElementById('pause').innerHTML = "Pause";
+			window.setTimeout(drop,1000);
+		}
+	}
+
+	newBlock(); 
+
 
 </script>
 

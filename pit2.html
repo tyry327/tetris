@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Pit Building</title>
+</head>
+<body>
+
+<div id="pit"></div>
+
+<p id="blockreport"></p>
+
+<button onclick="moveLeft()">Move Left</button>
+<button onclick="moveRight()">Move Right</button>
+<button id="pause" onclick="pause()">Pause</button>
+
+<h3>Scoreboard</h3>
+<p>Lines: <span id="lines"></span></p>
+<p>Score: <span id="score"></span></p>
+
+<script>
+
+	var lines = 0;
+	var score = 0;
+	var tetris = 0;
+	var paused = false;
+
+	function updateScores() {
+		document.getElementById('lines').innerHTML = lines;
+		document.getElementById('score').innerHTML = score;
+	}
+
+	function pitTemplate(orientation) {
+		
+		// Set width and height of pit based on screen orientation
+		this.w = (this.orientation == "landscape" ? 15 : 10);
+		this.h = (this.orientation == "landscape" ? 10 : 15);
+		
+		// Create pit array based on width and height
+		this.matrix = new Array();
+		for (var i = 0; i < this.h; i++) {
+			this.matrix[i] = new Array();
+			for (var j = 0; j < this.w; j++) {
+				this.matrix[i][j] = "0";
+			}
+		}
+
+		// Display pit from matrix array in pit div
+		this.printPit = function() {
+			var matrixHTML = "<pre>"
+			for (i = 0; i < this.h; i++) {
+				for (j = 0; j < this.w; j++) {
+					matrixHTML += String(this.matrix[i][j]) + " ";
+				}
+				matrixHTML += "\n";
+			}
+			matrixHTML += "</pre>"
+			document.getElementById('pit').innerHTML = matrixHTML;
+		}
+
+		this.getLastFreeRowForColumn = function(currentRow,column) {
+			var lastFreeRow = this.h-1;
+			for (var row = currentRow+1; row < this.h; row++) {
+				if (matrix[row][column] != "0") {
+					lastFreeRow = row-1;
+					return lastFreeRow;
+				}
+			}
+			return lastFreeRow;
+		}
+
+		this.getLastFreeColumnToRightForRow = function(currentColumn, row) {
+			var lastFreeColumn = this.w-1;
+			for (var column = currentColumn + 1; column < this.w; column++) {
+				if (matrix[row][column] != "0") {
+					lastFreeColumn = column-1;
+					return lastFreeColumn;
+				}
+			}
+			return lastFreeColumn;
+		}
+
+		this.getLastFreeColumnToLeftForRow = function(currentColumn, row) {
+			var lastFreeColumn = 0;
+			for (var column = currentColumn - 1; column >= 0; column--) {
+				if (matrix[row][column] != "0") {
+					lastFreeColumn = column+1;
+					return lastFreeColumn;
+				}
+			}
+			return lastFreeColumn;
+		}
+
+		this.checkRows = function(topRow) {
+			var turnlines = 0;
+			for (i = this.h; i >= topRow; i--) {
+				var full = true;
+				for (j = 0; j < this.w; j++) {
+					if (matrix[i][j] == "0") {
+						full = false;
+					}
+				}
+				if (full) {
+					matrix.splice(i,1);
+					matrix.unshift(["0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]);
+					turnlines++;
+				}
+			}
+			
+			// Scoring
+			lines += turnlines;
+			switch (turnlines) {
+				case 0:
+					tetris = 0;
+					break;
+				case 1:
+					tetris = 0;
+					score += 100;
+					break;
+				case 2:
+					tetris = 0;
+					score += 300;
+					break;
+				case 3:
+					tetris = 0;
+					score += 600;
+					break;
+				case 4:
+					tetris ++;
+					score += 800;
+					break;
+			}
+			if (tetris == 2) {
+				score += 1600;
+				tetris = 0;
+			}
+			updateScores();
+
+			this.printPit();
+			newBlock();
+		}
+
+	}
+
+	function newBlock () {
+		blockType = "cube";
+		blockTop = 0;
+		blockLeft = (parseInt(pit.w))/2-1; 
+		pit.matrix[blockTop][blockLeft] = "X";
+		pit.printPit();
+		window.setTimeout(drop,1000);
+	}
+
+	function drop() {
+		if (!paused) {
+			var lastFreeRow = pit.getLastFreeRowForColumn(blockTop,blockLeft);
+			if (blockTop < lastFreeRow) {
+				blockTop += 1;
+				document.getElementById('blockreport').innerHTML = 'Block is at row ' + blockTop;
+				pit.matrix[blockTop-1][blockLeft] = "0";
+				pit.matrix[blockTop][blockLeft] = "X";
+				pit.printPit();
+				window.setTimeout(drop,250);
+			}
+			else {
+				document.getElementById('blockreport').innerHTML = 'Block is at row ' + blockTop + ' and is done dropping';
+				pit.checkRows(blockTop);
+			}
+		}
+	}
+
+	function moveRight() {
+		var lastFreeColumn = getLastFreeColumnToRightForRow(blockLeft,blockTop);
+		if (blockLeft < lastFreeColumn) {
+			blockLeft += 1;
+			matrix[blockTop][blockLeft-1] = "0";
+			matrix[blockTop][blockLeft] = "X";
+			document.getElementById('pit').innerHTML = "Here's the pit! <br>" + printPit();
+		}
+	}
+
+	function moveLeft() {
+		var lastFreeColumn = getLastFreeColumnToLeftForRow(blockLeft,blockTop);
+		if (blockLeft > lastFreeColumn) {
+			blockLeft -= 1;
+			matrix[blockTop][blockLeft+1] = "0";
+			matrix[blockTop][blockLeft] = "X";
+			document.getElementById('pit').innerHTML = "Here's the pit! <br>" + printPit();
+		}
+	}
+
+	function pause() {
+		if (!paused) {
+			paused = true;
+			document.getElementById('pause').innerHTML = "Resume";
+		}
+		else {
+			paused = false;
+			document.getElementById('pause').innerHTML = "Pause";
+			window.setTimeout(drop,1000);
+		}
+	}
+
+	var pit = new pitTemplate("landscape");
+
+	pit.printPit();
+
+	updateScores();
+	
+	newBlock(); 
+
+
+</script>
+
+</body>
+</html>  
