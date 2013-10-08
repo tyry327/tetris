@@ -11,6 +11,7 @@
 
 <button onclick="moveLeft()">Move Left</button>
 <button onclick="moveRight()">Move Right</button>
+<button onclick="dropToBottom()">Drop</button>
 <button id="pause" onclick="pause()">Pause</button>
 
 <h3>Scoreboard</h3>
@@ -35,7 +36,19 @@
 		this.w = (this.orientation == "landscape" ? 15 : 10);
 		this.h = (this.orientation == "landscape" ? 10 : 15);
 		
-		// Create pit array based on width and height
+		
+		/*// Create blank row array based on width
+		this.blankRow = new Array();
+		for (var i = 0; i < this.w; i++) {
+			this.blankRow[i] = "0";
+		}*/
+
+		this.blankRow = "";
+		for (var i = 0; i < this.w; i++) {
+			this.blankRow += "0";
+		}
+
+		// Create pit array based on height and width
 		this.matrix = new Array();
 		for (var i = 0; i < this.h; i++) {
 			this.matrix[i] = new Array();
@@ -44,23 +57,29 @@
 			}
 		}
 
-		// Display pit from matrix array in pit div
+		// Update matrix space
+		this.updateSpace = function(row,column,character) {
+			this.matrix[row][column] = character;
+		}
+
+
+		// Output pit, from matrix array, in pit div
 		this.printPit = function() {
 			var matrixHTML = "<pre>"
-			for (i = 0; i < this.h; i++) {
-				for (j = 0; j < this.w; j++) {
+			for (var i = 0; i < this.h; i++) {
+				for (var j = 0; j < this.w; j++) {
 					matrixHTML += String(this.matrix[i][j]) + " ";
 				}
 				matrixHTML += "\n";
 			}
-			matrixHTML += "</pre>"
+			matrixHTML += "</pre>";
 			document.getElementById('pit').innerHTML = matrixHTML;
 		}
 
 		this.getLastFreeRowForColumn = function(currentRow,column) {
 			var lastFreeRow = this.h-1;
 			for (var row = currentRow+1; row < this.h; row++) {
-				if (matrix[row][column] != "0") {
+				if (this.matrix[row][column] != "0") {
 					lastFreeRow = row-1;
 					return lastFreeRow;
 				}
@@ -71,7 +90,7 @@
 		this.getLastFreeColumnToRightForRow = function(currentColumn, row) {
 			var lastFreeColumn = this.w-1;
 			for (var column = currentColumn + 1; column < this.w; column++) {
-				if (matrix[row][column] != "0") {
+				if (this.matrix[row][column] != "0") {
 					lastFreeColumn = column-1;
 					return lastFreeColumn;
 				}
@@ -82,7 +101,7 @@
 		this.getLastFreeColumnToLeftForRow = function(currentColumn, row) {
 			var lastFreeColumn = 0;
 			for (var column = currentColumn - 1; column >= 0; column--) {
-				if (matrix[row][column] != "0") {
+				if (this.matrix[row][column] != "0") {
 					lastFreeColumn = column+1;
 					return lastFreeColumn;
 				}
@@ -91,24 +110,24 @@
 		}
 
 		this.checkRows = function(topRow) {
-			var turnlines = 0;
-			for (i = this.h; i >= topRow; i--) {
+			this.turnlines = 0;
+			for (i = this.h-1; i >= topRow; i--) {
 				var full = true;
 				for (j = 0; j < this.w; j++) {
-					if (matrix[i][j] == "0") {
+					if (this.matrix[i][j] == "0") {
 						full = false;
 					}
 				}
 				if (full) {
-					matrix.splice(i,1);
-					matrix.unshift(["0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]);
-					turnlines++;
+					this.matrix.splice(i,1);
+					this.matrix.unshift(this.blankRow);
+					this.turnlines++;
 				}
 			}
 			
-			// Scoring
-			lines += turnlines;
-			switch (turnlines) {
+			// Scoring - MOVE INTO SEPARATE FUNCTION?
+			lines += this.turnlines;
+			switch (this.turnlines) {
 				case 0:
 					tetris = 0;
 					break;
@@ -134,9 +153,8 @@
 				tetris = 0;
 			}
 			updateScores();
-
-			this.printPit();
 			newBlock();
+
 		}
 
 	}
@@ -145,9 +163,9 @@
 		blockType = "cube";
 		blockTop = 0;
 		blockLeft = (parseInt(pit.w))/2-1; 
-		pit.matrix[blockTop][blockLeft] = "X";
+		pit.updateSpace(blockTop,blockLeft,"X");
 		pit.printPit();
-		window.setTimeout(drop,1000);
+		window.setTimeout(drop,500);
 	}
 
 	function drop() {
@@ -156,10 +174,10 @@
 			if (blockTop < lastFreeRow) {
 				blockTop += 1;
 				document.getElementById('blockreport').innerHTML = 'Block is at row ' + blockTop;
-				pit.matrix[blockTop-1][blockLeft] = "0";
-				pit.matrix[blockTop][blockLeft] = "X";
+				pit.updateSpace(blockTop-1,blockLeft,"0");
+				pit.updateSpace(blockTop,blockLeft,"X");				
 				pit.printPit();
-				window.setTimeout(drop,250);
+				window.setTimeout(drop,500);
 			}
 			else {
 				document.getElementById('blockreport').innerHTML = 'Block is at row ' + blockTop + ' and is done dropping';
@@ -169,23 +187,39 @@
 	}
 
 	function moveRight() {
-		var lastFreeColumn = getLastFreeColumnToRightForRow(blockLeft,blockTop);
-		if (blockLeft < lastFreeColumn) {
-			blockLeft += 1;
-			matrix[blockTop][blockLeft-1] = "0";
-			matrix[blockTop][blockLeft] = "X";
-			document.getElementById('pit').innerHTML = "Here's the pit! <br>" + printPit();
+		if (!paused) {
+			var lastFreeColumn = pit.getLastFreeColumnToRightForRow(blockLeft,blockTop);
+			if (blockLeft < lastFreeColumn) {
+				blockLeft += 1;
+				pit.updateSpace(blockTop,blockLeft-1,"0");	
+				pit.updateSpace(blockTop,blockLeft,"X");	
+				pit.printPit();
+			}
 		}
 	}
 
 	function moveLeft() {
-		var lastFreeColumn = getLastFreeColumnToLeftForRow(blockLeft,blockTop);
-		if (blockLeft > lastFreeColumn) {
-			blockLeft -= 1;
-			matrix[blockTop][blockLeft+1] = "0";
-			matrix[blockTop][blockLeft] = "X";
-			document.getElementById('pit').innerHTML = "Here's the pit! <br>" + printPit();
+		if (!paused) {
+			var lastFreeColumn = pit.getLastFreeColumnToLeftForRow(blockLeft,blockTop);
+			if (blockLeft > lastFreeColumn) {
+				blockLeft -= 1;
+				pit.updateSpace(blockTop,blockLeft+1,"0");	
+				pit.updateSpace(blockTop,blockLeft,"X");
+				pit.printPit();
+			}
 		}
+	}
+
+	function dropToBottom() {
+		if (!paused) {
+			var lastFreeRow = pit.getLastFreeRowForColumn(blockTop,blockLeft);
+			if (blockTop < lastFreeRow) {
+				pit.updateSpace(blockTop,blockLeft,"0");				
+				blockTop = lastFreeRow;
+				pit.updateSpace(blockTop,blockLeft,"X");				
+				pit.printPit();
+			}
+		}	
 	}
 
 	function pause() {
