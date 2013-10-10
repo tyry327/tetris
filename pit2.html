@@ -2,6 +2,7 @@
 <html>
 <head>
 	<title>Pit Building</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 <body>
 
@@ -9,8 +10,11 @@
 
 <p id="blockreport"></p>
 
+<p id="action"></p>
+
 <button onclick="newBlock.moveLeft()">Move Left</button>
 <button onclick="newBlock.moveRight()">Move Right</button>
+<br>
 <button onclick="newBlock.dropToBottom()">Drop</button>
 <button id="pause" onclick="pause()">Pause</button>
 
@@ -19,6 +23,8 @@
 <p>Score: <span id="score"></span></p>
 
 <script>
+	
+	
 
 	var lines = 0;
 	var score = 0;
@@ -28,6 +34,63 @@
 	var blank = "  ";
 /*	var filled = "&#9608;&#9608;"*/
 	var filled = "&#9633 "
+
+	//
+	// Swipe and tap detection
+	//
+
+	var startX;
+	var startY;
+
+	function touchStart(e)
+	{
+		e.preventDefault();
+
+		var touch = e.changedTouches[0];
+		
+		startX = touch.clientX;
+		startY = touch.clientY;
+
+	}
+
+	function touchEnd(e)
+	{
+		e.preventDefault();
+
+		var touch = e.changedTouches[0];
+		
+		endX = touch.clientX;
+		endY = touch.clientY;
+
+		changeX = startX-endX;
+		changeY = startY-endY;
+
+		if (Math.abs(changeX) < 7 && Math.abs(changeY) < 7) {	
+			action = "clockwise";								// Tap
+		}
+		else {
+			if (Math.abs(changeX) > Math.abs(changeY)) {
+				if (changeX > 0) {
+					action = "left";
+					moveLeft();								// Left swipe
+				}
+				else {
+					action = "right";
+					moveRight();							// Right swipe
+				}
+			}
+			else {
+				if (changeY > 0) {
+					action = "counter-clockwise";				// Up swipe
+				}	
+				else {
+					action = "fall";							// Down swipe
+				}
+			}
+		}
+
+		document.getElementById('action').innerHTML = action;
+	}
 
 	function updateScores() {
 		document.getElementById('lines').innerHTML = lines;
@@ -287,6 +350,14 @@
 		newBlock = new block(1); 
 		window.setTimeout(drop,500);
 	}
+
+	//
+	// Touch event listeners
+	//
+
+	window.addEventListener('touchstart', touchStart, false);
+	window.addEventListener('touchend', touchEnd, false);
+
 
 	//
 	// Initialize new game
