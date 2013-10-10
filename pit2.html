@@ -36,6 +36,20 @@
 	var filled = "&#9633 "
 
 	//
+	// Initial device orientation detection
+	//
+
+	var initialOrientation = "";
+
+	// Get the width and height of the browser window
+	// and set initialOrientation to portrait or landscape accordingly
+
+	width = window.innerWidth;
+	height = window.innerHeight;
+	initialOrientation = (width > height ? "landscape" : "portrait");
+
+
+	//
 	// Swipe and tap detection
 	//
 
@@ -72,11 +86,11 @@
 			if (Math.abs(changeX) > Math.abs(changeY)) {
 				if (changeX > 0) {
 					action = "left";
-					moveLeft();								// Left swipe
+					newBlock.moveLeft();						// Left swipe
 				}
 				else {
 					action = "right";
-					moveRight();							// Right swipe
+					newBlock.moveRight();						// Right swipe
 				}
 			}
 			else {
@@ -85,6 +99,7 @@
 				}	
 				else {
 					action = "fall";							// Down swipe
+					newBlock.dropToBottom();
 				}
 			}
 		}
@@ -98,11 +113,13 @@
 	}
 
 	function pitTemplate(orientation,blank) {
+
+		this.orientation = orientation;
+		this.blank = blank;
 		
 		// Set width and height of pit based on screen orientation
 		this.w = (this.orientation == "landscape" ? 15 : 10);
 		this.h = (this.orientation == "landscape" ? 10 : 15);
-		this.blank = blank;
 
 		// Find center of pit -- where new blocks appear
 		this.center = (parseInt(this.w))/2-1; 
@@ -352,19 +369,18 @@
 	}
 
 	//
-	// Touch event listeners
+	// Touch event and screen orientation listeners
 	//
 
 	window.addEventListener('touchstart', touchStart, false);
 	window.addEventListener('touchend', touchEnd, false);
-
 
 	//
 	// Initialize new game
 	//
 
 	// Create pit object
-	var pit = new pitTemplate("landscape",blank);
+	var pit = new pitTemplate(initialOrientation,blank);
 
 	// Print blank bit
 	pit.printPit();
