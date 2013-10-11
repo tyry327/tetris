@@ -14,7 +14,9 @@
 
 <button onclick="block.moveLeft()">Move Left</button>
 <button onclick="block.moveRight()">Move Right</button>
-<button onclick="block.rotate(1)">Rotate</button>
+<br>
+<button onclick="block.rotate('clockwise')">Rotate</button>
+<button onclick="block.rotate('counter')">Rotate Counterclockwise</button>
 <br>
 <button onclick="block.dropToBottom()">Drop</button>
 <button id="pause" onclick="pause()">Pause</button>
@@ -57,6 +59,33 @@
 	height = window.innerHeight;
 	initialOrientation = (width > height ? "landscape" : "portrait");
 
+	// Track whether the browser window orientation changes.
+	// Note: We don't care if the phone orientation has changed
+	// unless the browser window orientation has also changed. 
+	// If the user wants to play while lying in bed, no big deal 
+	// as long as she has the device orientation locked --
+	// in which case I don't want to interrupt game play.
+
+	function orientationCheck (e) {
+		
+		// Get current orientation of browser windows
+
+		if (window.matchMedia("(orientation: portrait)").matches) {
+			newOrientation = "portrait";
+		}
+		else {
+			newOrientation = "landscape";
+		}
+
+		// If the current orientation does not match the initial orientation, pause and alert
+
+		if (initialOrientation != newOrientation) {
+			if (!paused) {pause();}
+			alert("Your device orientation has changed from " + initialOrientation + " to " + newOrientation + ". Please return your device to its original position, lock your screen orientation, or start a new game to play in " + newOrientation + " mode.";
+		} 
+	}
+
+
 
 	//
 	// Swipe and tap detection
@@ -92,7 +121,7 @@
 			touchSound.play();
 			touchSound.currentTime=0;
 			action = "clockwise";								// Tap
-			block.rotate(1);
+			block.rotate('clockwise');
 		}
 		else {
 			if (Math.abs(changeX) > Math.abs(changeY)) {
@@ -114,7 +143,7 @@
 					touchSound.play();
 					touchSound.currentTime=0;
 					action = "counter-clockwise";				// Up swipe
-					block.rotate(0);
+					block.rotate('counter');
 				}	
 				else {
 					touchSound.play();
@@ -619,10 +648,15 @@
 		// Rotation!
 		//
 
-		this.rotate = function(clockwise) {
+		this.rotate = function(direction) {
 
 			// Get new rotation, clockwise +90 or counterclockwise -90
-			newRotation = this.rotation + (clockwise ? 90 : -90);
+			if (direction === "clockwise") { 
+				newRotation = this.rotation + 90;
+			}
+			else {
+				newRotation = this.rotation - 90;
+			}
 			if (newRotation > 270 || newRotation < 0) {
 				newRotation = 0;
 			}
@@ -816,6 +850,8 @@
 
 	window.addEventListener('touchstart', touchStart, false);
 	window.addEventListener('touchend', touchEnd, false);
+	window.addEventListener('deviceorientation', orientationCheck, false);
+
 
 	//
 	// Initialize new game
@@ -827,7 +863,7 @@
 	// Print blank bit
 	pit.printPit();
 	
-	// Start game with new turn, and start timer
+	// Start game with new turn, and start game timer
 	startTurn();
 	window.setTimeout(timer,1000);
 
