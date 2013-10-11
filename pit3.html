@@ -30,6 +30,7 @@
 
 	var lines = 0;
 	var score = 0;
+	var userLocation = "test";
 	var gameTime = 0;
 	var tetris = 0;
 	var paused = false;
@@ -89,6 +90,7 @@
 
 		if (Math.abs(changeX) < 7 && Math.abs(changeY) < 7) {
 			touchSound.play();
+			touchSound.currentTime=0;
 			action = "clockwise";								// Tap
 			block.rotate(1);
 		}
@@ -96,11 +98,13 @@
 			if (Math.abs(changeX) > Math.abs(changeY)) {
 				if (changeX > 0) {
 					touchSound.play();
+					touchSound.currentTime=0;
 					action = "left";
 					block.moveLeft();						// Left swipe
 				}
 				else {
 					touchSound.play();
+					touchSound.currentTime=0;
 					action = "right";
 					block.moveRight();						// Right swipe
 				}
@@ -108,11 +112,13 @@
 			else {
 				if (changeY > 0) {
 					touchSound.play();
+					touchSound.currentTime=0;
 					action = "counter-clockwise";				// Up swipe
 					block.rotate(0);
 				}	
 				else {
 					touchSound.play();
+					touchSound.currentTime=0;
 					action = "fall";							// Down swipe
 					block.dropToBottom();
 				}
@@ -723,22 +729,53 @@
 		gameOver = true;
 		document.getElementById('blockreport').innerHTML = 'Block is at row ' + block.top + " and GAME OVER!";
 		saveScore();
+		sendScoreToServer();
 	}
 
 	//
 	// Save score at end of game
 	//
+
+	function positionHandler(Position) {
+		var latitude = Position.coords.latitude;
+		var longitude = Position.coords.longitude;
+		userLocation = latitude+","+longitude;
+	}
+
+	function positionErrorHandler() {
+		userLocation = "denied";
+	}
+
+	function getLocation() {
+		navigator.geolocation.getCurrentPosition(positionHandler, positionErrorHandler);
+	}
+
+	function sendScoreToServer() {
+		getLocation();
+		var webSocketData = "Name="+gameRecord.name+"&HighScore="+score+"&Location="+userLocation;
+		// var websocket = new WebSocket('ws://technologeeks.com/e65/submit.php?user=johanna.bodnyk')
+		var websocket = new WebSocket('ws://echo.websocket.org');
+		websocket.onopen = function() {
+			websocket.send(webSocketData);
+		}
+		websocket.onmessage = function (evt) { // For testing with echo.websocket.org
+			console.log("Message received: " + evt.data);
+		}
+	}
+
 	function saveScore() {
-		var gameRecord = {};
+		// Save score locally
+		gameRecord = {};
 		gameRecord.lines = lines;
 		gameRecord.score = score;
 		gameRecord.gameTime = gameTime;
-		gameRecord.name = prompt("Enter your name to save your score! (Or hit Cancel to save your score anonymously.)","Name");
+		gameRecord.name = prompt("Enter your name to save your score! (Or hit Cancel to save your score anonymously.)");
 		if (gameRecord.name==null) {gameRecord.name = "Anonymous";}
 		var recordId = Date.now();
 		localStorage.setItem(recordId, JSON.stringify(gameRecord));
 
-		//http://technologeeks.com/e65/submit.php?Name=$name&HighScore=$score&Location=$Location
+		// Get location to send to server, open send via websocket after location is check
+		getLocation();
 	}
 
 

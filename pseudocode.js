@@ -24,14 +24,17 @@ Mobile Features
 --Add browser feature support checks
 
 Game Logic
---Send high score to server
 --Add graphics
 
 BUGS
+-- Figure out how to add callback so websocket routine waits for user location
 -- Line 650 - else statement to draw a partial block at the end of the game is not getting executed
 
 TIME ALLOWING
 --Make high scores page more readable (display in a table)
+
+QUESTIONS
+--Websocket URI (ws vs. http), data format
 
 function Pit(height, width) {
 	this.height = height;

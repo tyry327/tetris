@@ -1,0 +1,33 @@
+<html>
+<head>
+	<title>Location Test</title>
+</head>
+<body>
+
+<p>Latitude: <span id="latitude"></span></p>
+<p>Longitude: <span id="longitude"></span></p>
+
+<script>
+
+function positionHandler (Position) {
+	latitude = Position.coords.latitude;
+	longitude = Position.coords.longitude;
+	document.getElementById('latitude').innerHTML = latitude;
+	document.getElementById('longitude').innerHTML = longitude;
+}
+
+function errorHandler (err) {
+	alert("ErrorHandler says " +err.message);
+	document.getElementById('latitude').innerHTML = "denied";
+	document.getElementById('longitude').innerHTML = "denied";
+}
+
+try {
+	navigator.geolocation.getCurrentPosition(positionHandler, errorHandler)
+}
+catch (e) {alert (e);}
+
+</script>
+
+</body>
+</html>
