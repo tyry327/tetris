@@ -10,7 +10,6 @@
 
 <p id="blockreport"></p>
 <p id="fitreport"></p>
-
 <p id="action"></p>
 
 <button onclick="block.moveLeft()">Move Left</button>
@@ -37,6 +36,12 @@
 	var gameOver = false;
 	var rowNumbers = true;
 	var blank = " ";
+
+	//
+	// Sound effects
+	//
+	var clearRowSound = new Audio("sounds/clear-row.wav");
+	var touchSound = new Audio("sounds/touch.wav")
 
 	//
 	// Initial device orientation detection
@@ -82,25 +87,32 @@
 		changeX = startX-endX;
 		changeY = startY-endY;
 
-		if (Math.abs(changeX) < 7 && Math.abs(changeY) < 7) {	
+		if (Math.abs(changeX) < 7 && Math.abs(changeY) < 7) {
+			touchSound.play();
 			action = "clockwise";								// Tap
+			block.rotate(1);
 		}
 		else {
 			if (Math.abs(changeX) > Math.abs(changeY)) {
 				if (changeX > 0) {
+					touchSound.play();
 					action = "left";
 					block.moveLeft();						// Left swipe
 				}
 				else {
+					touchSound.play();
 					action = "right";
 					block.moveRight();						// Right swipe
 				}
 			}
 			else {
 				if (changeY > 0) {
+					touchSound.play();
 					action = "counter-clockwise";				// Up swipe
+					block.rotate(0);
 				}	
 				else {
+					touchSound.play();
 					action = "fall";							// Down swipe
 					block.dropToBottom();
 				}
@@ -250,6 +262,7 @@
 					}
 				}
 				if (full) {
+					clearRowSound.play();
 					this.matrix.splice(i,1);
 					this.addRow();
 					turnLines++;
@@ -724,7 +737,10 @@
 		if (gameRecord.name==null) {gameRecord.name = "Anonymous";}
 		var recordId = Date.now();
 		localStorage.setItem(recordId, JSON.stringify(gameRecord));
+
+		//http://technologeeks.com/e65/submit.php?Name=$name&HighScore=$score&Location=$Location
 	}
+
 
 	//
 	// Pause and resume game
