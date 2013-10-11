@@ -14,6 +14,7 @@
 
 <button onclick="newBlock.moveLeft()">Move Left</button>
 <button onclick="newBlock.moveRight()">Move Right</button>
+<button onclick="newBlock.rotate(1)">Rotate</button>
 <br>
 <button onclick="newBlock.dropToBottom()">Drop</button>
 <button id="pause" onclick="pause()">Pause</button>
@@ -21,6 +22,7 @@
 <h3>Scoreboard</h3>
 <p>Lines: <span id="lines"></span></p>
 <p>Score: <span id="score"></span></p>
+<p>Game time: <span id="time"></span></p>
 
 <script>
 	
@@ -28,6 +30,7 @@
 
 	var lines = 0;
 	var score = 0;
+	var gametime = 0;
 	var tetris = 0;
 	var paused = false;
 	var rowNumbers = true;
@@ -142,7 +145,7 @@
 		}
 
 		// Update matrix space
-		this.updateSpace = function(row,column,character) {
+		this.updateSpace = function(column,row,character) {
 			this.matrix[row][column] = character;
 		}
 
@@ -206,10 +209,10 @@
 			document.getElementById('pit').innerHTML = matrixHTML;
 		}
 
-		this.getLastFreeRowForColumn = function(currentRow,column) {
+		this.getLastFreeRowForColumn = function(column, currentRow) {
 			var lastFreeRow = this.h-1;
 			for (var row = currentRow+1; row < this.h; row++) {
-				if (this.matrix[row][column] != pit.blank) {
+				if (this.matrix[row][column] != pit.blank && this.matrix[row][column] != newBlock.type) {
 					lastFreeRow = row-1;
 					return lastFreeRow;
 				}
@@ -220,7 +223,7 @@
 		this.getLastFreeColumnToRightForRow = function(currentColumn, row) {
 			var lastFreeColumn = this.w-1;
 			for (var column = currentColumn + 1; column < this.w; column++) {
-				if (this.matrix[row][column] != pit.blank) {
+				if (this.matrix[row][column] != pit.blank && this.matrix[row][column] != newBlock.type) {
 					lastFreeColumn = column-1;
 					return lastFreeColumn;
 				}
@@ -231,7 +234,7 @@
 		this.getLastFreeColumnToLeftForRow = function(currentColumn, row) {
 			var lastFreeColumn = 0;
 			for (var column = currentColumn - 1; column >= 0; column--) {
-				if (this.matrix[row][column] != pit.blank) {
+				if (this.matrix[row][column] != pit.blank && this.matrix[row][column] != newBlock.type) {
 					lastFreeColumn = column+1;
 					return lastFreeColumn;
 				}
@@ -239,9 +242,9 @@
 			return lastFreeColumn;
 		}
 
-		this.checkRows = function(topRow) {
+		this.checkRows = function() {
 			this.turnlines = 0;
-			for (i = this.h-1; i >= topRow; i--) {
+			for (var i = 0; i < this.h; i++) {
 				var full = true;
 				for (j = 0; j < this.w; j++) {
 					if (this.matrix[i][j] == pit.blank) {
@@ -259,47 +262,332 @@
 
 	}
 
-	function block(type) {
-		this.type = type;
+	function block() {
+
+		// Randomly set block type
+		var typeNumber = Math.floor(Math.random()*7);
+		var types = ["C","I","J","L","S","T","Z"];
+		this.type = types[typeNumber];
+
+		// Set rotation to 0 and start block off at top center of pit
+		this.rotation = 0;
 		this.top = 0;
 		this.left = pit.center;
-		pit.updateSpace(this.top,this.left,filled);
-		pit.printPit();
+
+		this.blockSpots = {
+			'C': {
+				0: [
+					[0,0],
+					[1,0],
+					[0,1],
+					[1,1]
+				],
+				90: [
+					[0,0],
+					[1,0],
+					[0,1],
+					[1,1]
+				],
+				180: [
+					[0,0],
+					[1,0],
+					[0,1],
+					[1,1]
+				],
+				270: [
+					[0,0],
+					[1,0],
+					[0,1],
+					[1,1]
+				]
+			},
+			'I': {
+				0: [
+					[0,0],
+					[0,1],
+					[0,2],
+					[0,3]
+				],
+				90: [
+					[0,0],
+					[1,0],
+					[2,0],
+					[3,0]
+				],
+				180: [
+					[0,0],
+					[0,1],
+					[0,2],
+					[0,3]
+				],
+				270: [
+					[0,0],
+					[1,0],
+					[2,0],
+					[3,0]
+				]
+			},
+			'L': {
+				0: [
+					[0,0],
+					[0,1],
+					[0,2],
+					[1,2]
+				],
+				90: [
+					[0,0],
+					[1,0],
+					[2,0],
+					[0,1]
+				],
+				180: [
+					[0,0],
+					[1,0],
+					[1,1],
+					[1,2]
+				],
+				270: [
+					[2,0],
+					[0,1],
+					[1,1],
+					[2,1]
+				]
+			},
+			'J': {
+				0: [
+					[1,0],
+					[1,1],
+					[0,2],
+					[1,2]
+				],
+				90: [
+					[0,0],
+					[0,1],
+					[1,1],
+					[2,1]
+				],		
+				180: [
+					[0,0],
+					[1,0],
+					[0,1],
+					[0,2]
+				],
+				270: [
+					[0,0],
+					[1,0],
+					[2,0],
+					[2,1]
+				]
+			},
+			'T': {
+				0: [
+					[0,0],
+					[1,0],
+					[2,0],
+					[1,1]
+				],
+				90: [
+					[1,0],
+					[0,1],
+					[1,1],
+					[1,2]
+				],		
+				180: [
+					[1,0],
+					[0,1],
+					[1,1],
+					[2,1]
+				],
+				270: [
+					[0,0],
+					[0,1],
+					[1,1],
+					[0,2]
+				]
+			},
+			'S': {
+				0: [
+					[1,0],
+					[2,0],
+					[0,1],
+					[1,1]
+				],
+				90: [
+					[0,0],
+					[0,1],
+					[1,1],
+					[1,2]
+				],		
+				180: [
+					[1,0],
+					[2,0],
+					[0,1],
+					[1,1]
+				],
+				270: [
+					[0,0],
+					[0,1],
+					[1,1],
+					[1,2]
+				]
+			},
+			'Z': {
+				0: [
+					[0,0],
+					[1,0],
+					[1,1],
+					[2,1]
+				],
+				90: [
+					[1,0],
+					[0,1],
+					[1,1],
+					[0,2]
+				],		
+				180: [
+					[0,0],
+					[1,0],
+					[1,1],
+					[2,1]
+				],
+				270: [
+					[1,0],
+					[0,1],
+					[1,1],
+					[0,2]
+				]
+			}
+		}
+
+
+		this.drawBlock = function(mode) {
+			if (mode == "move") {
+				character = this.type;
+			}
+			else if (mode == "final") {
+				character = this.type.toLowerCase();
+			}
+			else {
+				character = blank;
+			}
+
+			for (var i = 0; i < 4; i++)
+			{
+				var X = this.blockSpots[this.type][this.rotation][i][0] + this.left;
+				var Y = this.blockSpots[this.type][this.rotation][i][1] + this.top;
+				pit.updateSpace(X,Y,character);
+			}
+			pit.printPit();
+		}
 
 		this.moveRight = function() {
 			if (!paused) {
-				var lastFreeColumn = pit.getLastFreeColumnToRightForRow(this.left,this.top);
-				if (this.left < lastFreeColumn) {
-					this.left += 1;
-					pit.updateSpace(this.top,this.left-1,pit.blank);	
-					pit.updateSpace(this.top,this.left,filled);	
-					pit.printPit();
+				var rightLimit = this.findRightLimit();
+				if (this.left < rightLimit) {
+					this.drawBlock("erase");
+					this.left++;
+					this.drawBlock("move");
 				}
 			}
 		}
 
 		this.moveLeft = function() {
 			if (!paused) {
-				var lastFreeColumn = pit.getLastFreeColumnToLeftForRow(this.left,this.top);
-				if (this.left > lastFreeColumn) {
-					this.left -= 1;
-					pit.updateSpace(this.top,this.left+1,pit.blank);	
-					pit.updateSpace(this.top,this.left,filled);
-					pit.printPit();
+				var leftLimit = this.findLeftLimit();
+				if (this.left > leftLimit) {
+					this.drawBlock("erase");
+					this.left--;
+					this.drawBlock("move");
 				}
 			}
 		}
 
 		this.dropToBottom = function() {
 			if (!paused) {
-				var lastFreeRow = pit.getLastFreeRowForColumn(this.top,this.left);
-				if (this.top < lastFreeRow) {
-					pit.updateSpace(this.top,this.left,pit.blank);				
-					this.top = lastFreeRow;
-					pit.updateSpace(this.top,this.left,filled);				
-					pit.printPit();
+				var bottomLimit = this.findBottomLimit();
+				if (this.top < bottomLimit) {
+					this.drawBlock("erase");				
+					this.top = bottomLimit;
+					this.drawBlock("final")				
 				}
 			}	
+		}
+
+		// Find lowest point block can drop to
+		this.findBottomLimit = function() {
+			var bottomLimit = pit.h-1;
+			var spots = this.blockSpots[this.type][this.rotation];
+			for (var i = 0; i < 4; i++) {
+				var columnToCheck = spots[i][0] + this.left;
+				var rowToStartFrom = spots[i][1] + this.top;
+				var bottomForColumn = pit.getLastFreeRowForColumn(columnToCheck,rowToStartFrom)
+				bottomForColumn -= spots[i][1];
+				if (bottomForColumn < bottomLimit) {
+					bottomLimit = bottomForColumn;
+				}
+			}
+			return bottomLimit;
+		}
+
+		// Find right-most point block can move to
+		this.findRightLimit = function() {
+			var rightLimit = pit.w-1;
+			var spots = this.blockSpots[this.type][this.rotation];
+			for (var i = 0; i < 4; i++) {
+				var columnToStartFrom = spots[i][0] + this.left;
+				var rowToCheck = spots [i][1] + this.top;
+				var rightLimitForRow = pit.getLastFreeColumnToRightForRow(columnToStartFrom,rowToCheck);
+				rightLimitForRow -= spots[i][0];
+				if (rightLimitForRow < rightLimit) {
+					rightLimit = rightLimitForRow;
+				}
+			}
+			return rightLimit;
+		}
+
+		// Find left-most point block can move to
+		this.findLeftLimit = function() {
+			var leftLimit = 0;
+			var spots = this.blockSpots[this.type][this.rotation];
+			for (var i = 0; i < 4; i++) {
+				var columnToStartFrom = spots[i][0] + this.left;
+				var rowToCheck = spots[i][1] + this.top;
+				var leftLimitForRow = pit.getLastFreeColumnToLeftForRow(columnToStartFrom,rowToCheck);
+				leftLimitForRow -= spots[i][0];
+				if (leftLimitForRow > leftLimit) {
+					leftLimit = leftLimitForRow;
+				}
+			}
+			return leftLimit;
+		}
+
+		//
+		// Rotation!
+		//
+
+		this.rotate = function(clockwise) {
+
+			// Get new rotation, clockwise +90 or counterclockwise -90
+			newRotation = this.rotation + (clockwise ? 90 : -90);
+			if (newRotation > 270 || newRotation < 0) {
+				newRotation = 0;
+			}
+			
+			// Check to see if block will stay in bounds with new rotation
+			var outOfBounds = false;
+			for (i = 0; i < 4; i++) {
+				newColumn = this.blockSpots[this.type][newRotation][i][0] + this.left;
+				if (newColumn >= pit.w) {
+					outOfBounds = true;
+				}
+			}
+
+			// If block will stay in bounds, erase, set new rotation, and redraw
+			if (!outOfBounds) {
+				this.drawBlock("erase");
+				this.rotation = newRotation;
+				this.drawBlock("move");
+			}
 		}
 
 	}
@@ -307,21 +595,22 @@
 	// Drop block one space, reset timer to drop again unless at last free row
 	function drop() {
 		if (!paused) {
-			var lastFreeRow = pit.getLastFreeRowForColumn(newBlock.top,newBlock.left);
-			if (newBlock.top < lastFreeRow) {
-				newBlock.top += 1;
+			var bottomLimit = newBlock.findBottomLimit();
+			if (newBlock.top < bottomLimit) {
+				newBlock.drawBlock("erase");
+				newBlock.top++;
 				document.getElementById('blockreport').innerHTML = 'Block is at row ' + newBlock.top;
-				pit.updateSpace(newBlock.top-1,newBlock.left,pit.blank);
-				pit.updateSpace(newBlock.top,newBlock.left,filled);				
-				pit.printPit();
-				window.setTimeout(drop,500);
+				newBlock.drawBlock("move");
+				window.setTimeout(drop,1000);
 			}
 			else {
+				newBlock.drawBlock("final")
 				document.getElementById('blockreport').innerHTML = 'Block is at row ' + newBlock.top + ' and is done dropping';
-				pit.checkRows(newBlock.top);
+				pit.checkRows();
 			}
 		}
 	}
+
 
 	// Pause and resume game
 	function pause() {
@@ -333,6 +622,7 @@
 			paused = false;
 			document.getElementById('pause').innerHTML = "Pause";
 			window.setTimeout(this.drop,1000);
+			window.setTimeout(timer,1000);
 		}
 	}
 
@@ -366,8 +656,19 @@
 			tetris = 0;
 		}
 		updateScores();
-		newBlock = new block(1); 
-		window.setTimeout(drop,500);
+		newBlock = new block(); 
+		window.setTimeout(drop,1000);
+	}
+
+	//
+	//	Game timer
+	//
+	function timer() {
+		if (!paused) {
+			gametime++;
+			document.getElementById("time").innerHTML = gametime;
+			window.setTimeout(timer,1000);
+		}
 	}
 
 	//
@@ -391,8 +692,10 @@
 	updateScores();
 	
 	// Start game with new block
-	var newBlock = new block(1); 
-	window.setTimeout(drop,500);
+	var newBlock = new block(); 
+	newBlock.drawBlock();
+	window.setTimeout(drop,1000);
+	window.setTimeout(timer,1000);
 
 
 

@@ -16,6 +16,22 @@
 // Look into HTML5 web SQL database
 // Websocket URL: http://technologeeks.com/e65/submit.php?user=<fill_your_name_here>
 
+STILL TO DO!
+
+Mobile Features
+--Auto-pause on screen orientation change
+--Get location during score saving
+
+Game Logic
+--Deal with blocks that can only get partially on to screen
+--End game when pit is full
+--Keep track of game duration
+--Save high score locally
+--Send high score to server
+--Display high scores
+
+
+
 make new block
 
 find furthest row block can drop to
