@@ -21,47 +21,17 @@ STILL TO DO!
 Mobile Features
 --Auto-pause on screen orientation change
 --Get location during score saving
+--Add browser feature support checks
 
 Game Logic
---Deal with blocks that can only get partially on to screen
---End game when pit is full
---Keep track of game duration
---Save high score locally
 --Send high score to server
---Display high scores
+--Add graphics
 
+BUGS
+-- Line 650 - else statement to draw a partial block at the end of the game is not getting executed
 
-
-make new block
-
-find furthest row block can drop to
-
-drop every 1 second until last empty row
-	move left or right
-		find furthest left or right block can move to
-		move block one space left or right if possible
-		find new furthest row block can drop to
-	rotate
-		find new furthest row block can drop to
-
-check for completed rows and remove
-
-make new block
-
-Get screen orientation - portrait or landscape
-
-If landscape
-	width = 15
-	height = 10
-If portrait
-	width = 10
-	height = 15
-
-pit object
-	height
-	width
-	matrix
-		array of 0s based on height and width 
+TIME ALLOWING
+--Make high scores page more readable (display in a table)
 
 function Pit(height, width) {
 	this.height = height;

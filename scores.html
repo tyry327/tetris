@@ -1,0 +1,25 @@
+<html>
+<head>
+	<title>High Scores</title>
+</head>
+<body>
+	<h1>High Scores</h1>
+	<div id="scores"></div>
+
+	<script>
+		records = "";
+			// Scores button is disabled on home screen if no score exists, but in cases someone
+			// navigates here directly, display a message instead of high scores if there are none
+			if (localStorage.length==0) {
+				document.getElementById("scores").innerHTML = "There are no high scores yet!";
+			}
+			else {
+				for (i = 0; i < localStorage.length; i++) {
+					record = JSON.parse(localStorage.getItem(localStorage.key(i)))
+					records += "<p> Name: " + record.name + " Score: " + record.score + " Lines: " + record.lines + " Duration: " + record.gameTime + "</p>"
+					document.getElementById("scores").innerHTML = records;
+				}
+			}
+	</script>
+</body>
+</html>

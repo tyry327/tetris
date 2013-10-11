@@ -46,7 +46,7 @@
 
 		<h2>Touchable Buttons</h2>
 		<button ontouchend="buttonHandler('game.html')">New Game</button>
-		<button ontouchend="buttonHandler('scores.html')">High Scores</button>
+		<button id="scores" ontouchend="buttonHandler('scores.html')">High Scores</button>
 		<button ontouchend="buttonHandler('bye.html')">Quit</button>
 
 		<div id="output">c</div>
@@ -56,6 +56,12 @@
 		function buttonHandler (link)
 		{
 			window.location = link;
+		}
+
+		// Remove High Scores buttons if no scores exist yet
+		if (localStorage.length == 0) {
+			var scorebutton = document.getElementById("scores");
+			scorebutton.parentNode.removeChild(scorebutton);
 		}
 
 	</script>

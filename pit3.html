@@ -9,20 +9,21 @@
 <div id="pit"></div>
 
 <p id="blockreport"></p>
+<p id="fitreport"></p>
 
 <p id="action"></p>
 
-<button onclick="newBlock.moveLeft()">Move Left</button>
-<button onclick="newBlock.moveRight()">Move Right</button>
-<button onclick="newBlock.rotate(1)">Rotate</button>
+<button onclick="block.moveLeft()">Move Left</button>
+<button onclick="block.moveRight()">Move Right</button>
+<button onclick="block.rotate(1)">Rotate</button>
 <br>
-<button onclick="newBlock.dropToBottom()">Drop</button>
+<button onclick="block.dropToBottom()">Drop</button>
 <button id="pause" onclick="pause()">Pause</button>
 
 <h3>Scoreboard</h3>
-<p>Lines: <span id="lines"></span></p>
-<p>Score: <span id="score"></span></p>
-<p>Game time: <span id="time"></span></p>
+<p>Lines: <span id="lines">0</span></p>
+<p>Score: <span id="score">0</span></p>
+<p>Game time: <span id="time">00:00</span></p>
 
 <script>
 	
@@ -30,15 +31,12 @@
 
 	var lines = 0;
 	var score = 0;
-	var gametime = 0;
+	var gameTime = 0;
 	var tetris = 0;
 	var paused = false;
+	var gameOver = false;
 	var rowNumbers = true;
 	var blank = " ";
-/*	var filled = "&#9608;&#9608;"*/
-/*	var filled = "&#9633"*/
-	var filled = "X";
-
 
 	//
 	// Initial device orientation detection
@@ -91,11 +89,11 @@
 			if (Math.abs(changeX) > Math.abs(changeY)) {
 				if (changeX > 0) {
 					action = "left";
-					newBlock.moveLeft();						// Left swipe
+					block.moveLeft();						// Left swipe
 				}
 				else {
 					action = "right";
-					newBlock.moveRight();						// Right swipe
+					block.moveRight();						// Right swipe
 				}
 			}
 			else {
@@ -104,7 +102,7 @@
 				}	
 				else {
 					action = "fall";							// Down swipe
-					newBlock.dropToBottom();
+					block.dropToBottom();
 				}
 			}
 		}
@@ -117,7 +115,7 @@
 		document.getElementById('score').innerHTML = score;
 	}
 
-	function pitTemplate(orientation,blank) {
+	function Pit(orientation,blank) {
 
 		this.orientation = orientation;
 		this.blank = blank;
@@ -212,7 +210,7 @@
 		this.getLastFreeRowForColumn = function(column, currentRow) {
 			var lastFreeRow = this.h-1;
 			for (var row = currentRow+1; row < this.h; row++) {
-				if (this.matrix[row][column] != pit.blank && this.matrix[row][column] != newBlock.type) {
+				if (this.matrix[row][column] != pit.blank && this.matrix[row][column] != block.type) {
 					lastFreeRow = row-1;
 					return lastFreeRow;
 				}
@@ -223,7 +221,7 @@
 		this.getLastFreeColumnToRightForRow = function(currentColumn, row) {
 			var lastFreeColumn = this.w-1;
 			for (var column = currentColumn + 1; column < this.w; column++) {
-				if (this.matrix[row][column] != pit.blank && this.matrix[row][column] != newBlock.type) {
+				if (this.matrix[row][column] != pit.blank && this.matrix[row][column] != block.type) {
 					lastFreeColumn = column-1;
 					return lastFreeColumn;
 				}
@@ -234,7 +232,7 @@
 		this.getLastFreeColumnToLeftForRow = function(currentColumn, row) {
 			var lastFreeColumn = 0;
 			for (var column = currentColumn - 1; column >= 0; column--) {
-				if (this.matrix[row][column] != pit.blank && this.matrix[row][column] != newBlock.type) {
+				if (this.matrix[row][column] != pit.blank && this.matrix[row][column] != block.type) {
 					lastFreeColumn = column+1;
 					return lastFreeColumn;
 				}
@@ -243,29 +241,29 @@
 		}
 
 		this.checkRows = function() {
-			this.turnlines = 0;
+			var turnLines = 0;
 			for (var i = 0; i < this.h; i++) {
 				var full = true;
-				for (j = 0; j < this.w; j++) {
-					if (this.matrix[i][j] == pit.blank) {
+				for (var j = 0; j < this.w; j++) {
+					if (this.matrix[i][j] == this.blank) {
 						full = false;
 					}
 				}
 				if (full) {
 					this.matrix.splice(i,1);
 					this.addRow();
-					this.turnlines++;
+					turnLines++;
 				}
 			}
-			scoreTurn(this.turnlines);
+			return turnLines;
 		}
-
 	}
 
-	function block() {
+	function Block() {
 
 		// Randomly set block type
 		var typeNumber = Math.floor(Math.random()*7);
+		// var typeNumber = 0;
 		var types = ["C","I","J","L","S","T","Z"];
 		this.type = types[typeNumber];
 
@@ -459,6 +457,28 @@
 			}
 		}
 
+		this.testBlock = function() {
+			var fits = true;
+			var inPit = false;
+			for (var i = 0; i < 4; i++)	{
+				var X = this.blockSpots[this.type][this.rotation][i][0] + this.left;
+				var Y = this.blockSpots[this.type][this.rotation][i][1] + this.top;
+				if (Y >= 0) {
+					inPit = true;
+					if (pit.matrix[Y][X] != pit.blank) {fits = false;}
+				}
+			}
+			if (fits && inPit) {
+				return true;
+			}
+			else if (this.top > -3) {
+				this.top--;
+				this.testBlock();
+			}
+			else {
+				return false;
+			}
+		}
 
 		this.drawBlock = function(mode) {
 			if (mode == "move") {
@@ -470,14 +490,29 @@
 			else {
 				character = blank;
 			}
-
-			for (var i = 0; i < 4; i++)
-			{
+			for (var i = 0; i < 4; i++)	{
 				var X = this.blockSpots[this.type][this.rotation][i][0] + this.left;
 				var Y = this.blockSpots[this.type][this.rotation][i][1] + this.top;
-				pit.updateSpace(X,Y,character);
+				if (Y >= 0) {pit.updateSpace(X,Y,character);}
 			}
 			pit.printPit();
+		}
+
+		// Drop block one space, reset timer to drop again unless at last free row
+		this.drop = function() {
+			if (!paused) {
+				var bottomLimit = this.findBottomLimit();
+				if (this.top < bottomLimit) {
+					this.drawBlock("erase");
+					this.top++;
+					document.getElementById('blockreport').innerHTML = 'Block is at row ' + this.top;
+					this.drawBlock("move");
+					window.setTimeout("block.drop()",1000);
+				}
+				else {
+					endTurn();
+				}
+			}
 		}
 
 		this.moveRight = function() {
@@ -573,17 +608,21 @@
 				newRotation = 0;
 			}
 			
-			// Check to see if block will stay in bounds with new rotation
-			var outOfBounds = false;
-			for (i = 0; i < 4; i++) {
-				newColumn = this.blockSpots[this.type][newRotation][i][0] + this.left;
-				if (newColumn >= pit.w) {
-					outOfBounds = true;
+			// Check to see if block will move outside pit with new rotation,
+			// or overlap existing blocks
+			var illegalRotation = false;
+			var spotsChecked = "";
+			for (var i = 0; i < 4; i++) {
+				var newColumn = this.blockSpots[this.type][newRotation][i][0] + this.left;
+				var newRow = this.blockSpots[this.type][newRotation][i][1] + this.top;
+				if (newColumn >= pit.w || (pit.matrix[newColumn][newRow] != pit.blank && pit.matrix[newColumn][newRow] != this.type)) {
+					illegalRotation = true;
 				}
+				spotsChecked += newColumn + "," + newRow + ";";
 			}
 
 			// If block will stay in bounds, erase, set new rotation, and redraw
-			if (!outOfBounds) {
+			if (!illegalRotation) {
 				this.drawBlock("erase");
 				this.rotation = newRotation;
 				this.drawBlock("move");
@@ -592,45 +631,55 @@
 
 	}
 
-	// Drop block one space, reset timer to drop again unless at last free row
-	function drop() {
-		if (!paused) {
-			var bottomLimit = newBlock.findBottomLimit();
-			if (newBlock.top < bottomLimit) {
-				newBlock.drawBlock("erase");
-				newBlock.top++;
-				document.getElementById('blockreport').innerHTML = 'Block is at row ' + newBlock.top;
-				newBlock.drawBlock("move");
-				window.setTimeout(drop,1000);
+
+	function startTurn() {
+		// Create new block and draw in pit
+		block = new Block();
+/*		block.drawBlock("move");
+		window.setTimeout("block.drop()",1000);*/
+
+		// Make sure block will fit at top of pit
+		var fits = block.testBlock();
+
+		if (fits == true) {
+			if (block.top === 0) {			// If entire block fits, draw and start dropping
+				document.getElementById("fitreport").innerHTML = "Fits!";
+				block.drawBlock("move");
+				window.setTimeout("block.drop()",1000);
 			}
-			else {
-				newBlock.drawBlock("final")
-				document.getElementById('blockreport').innerHTML = 'Block is at row ' + newBlock.top + ' and is done dropping';
-				pit.checkRows();
+			else {							// FIGURE OUT WHY THIS ISN'T EXECUTING!!!
+				document.getElementById("fitreport").innerHTML = "Fits partially";
+				block.drawBlock("final");	// If only part will fit, draw as final and end game
+				endGame();
 			}
+		}
+		else {							
+			document.getElementById("fitreport").innerHTML = "Does not fit";
+			endGame();						// If no part will fit, end game without drawing block
 		}
 	}
 
+	function endTurn() {
+		// Set block characters to lowercase
+		block.drawBlock("final");
+		document.getElementById('blockreport').innerHTML = 'Block is at row ' + block.top + ' and is done dropping';
 
-	// Pause and resume game
-	function pause() {
-		if (!paused) {
-			paused = true;
-			document.getElementById('pause').innerHTML = "Resume";
-		}
-		else {
-			paused = false;
-			document.getElementById('pause').innerHTML = "Pause";
-			window.setTimeout(this.drop,1000);
-			window.setTimeout(timer,1000);
-		}
+		// Check for completed rows
+		var rowsCompleted = pit.checkRows();
+
+		// Score turn based on completed rows and update display of scores
+		scoreTurn(rowsCompleted);
+		updateScores();
+
+		// Start new turn
+		startTurn();
 	}
 
 	// Score turn and update scoreboard based on lines completed
 	// then start new turn with a new block
-	function scoreTurn(turnlines) {
-		lines += turnlines;
-		switch (turnlines) {
+	function scoreTurn(rowsCompleted) {
+		lines += rowsCompleted;
+		switch (rowsCompleted) {
 			case 0:
 				tetris = 0;
 				break;
@@ -655,20 +704,57 @@
 			score += 1600;
 			tetris = 0;
 		}
-		updateScores();
-		newBlock = new block(); 
-		window.setTimeout(drop,1000);
+	}
+
+	function endGame() {
+		gameOver = true;
+		document.getElementById('blockreport').innerHTML = 'Block is at row ' + block.top + " and GAME OVER!";
+		saveScore();
+	}
+
+	//
+	// Save score at end of game
+	//
+	function saveScore() {
+		var gameRecord = {};
+		gameRecord.lines = lines;
+		gameRecord.score = score;
+		gameRecord.gameTime = gameTime;
+		gameRecord.name = prompt("Enter your name to save your score! (Or hit Cancel to save your score anonymously.)","Name");
+		if (gameRecord.name==null) {gameRecord.name = "Anonymous";}
+		var recordId = Date.now();
+		localStorage.setItem(recordId, JSON.stringify(gameRecord));
+	}
+
+	//
+	// Pause and resume game
+	//
+	function pause() {
+		if (!paused) {
+			paused = true;
+			document.getElementById('pause').innerHTML = "Resume";
+		}
+		else {
+			paused = false;
+			document.getElementById('pause').innerHTML = "Pause";
+			window.setTimeout("block.drop()",1000); // Start dropping block again
+			window.setTimeout(timer,1000); // Start timer again
+		}
 	}
 
 	//
 	//	Game timer
 	//
 	function timer() {
-		if (!paused) {
-			gametime++;
-			document.getElementById("time").innerHTML = gametime;
+		if (!paused && !gameOver) {
+			gameTime++;
 			window.setTimeout(timer,1000);
 		}
+		var gameSeconds = gameTime%60;
+		var gameMinutes = (gameTime-gameSeconds)/60;
+		if (gameSeconds < 10) {gameSeconds = "0" + gameSeconds}; // Add 0 for single digits
+		if (gameMinutes < 10) {gameMinutes = "0" + gameMinutes}; // Add 0 for single digits
+		document.getElementById("time").innerHTML = gameMinutes + ":" + gameSeconds;
 	}
 
 	//
@@ -683,21 +769,14 @@
 	//
 
 	// Create pit object
-	var pit = new pitTemplate(initialOrientation,blank);
+	var pit = new Pit(initialOrientation,blank);
 
 	// Print blank bit
 	pit.printPit();
-
-	// Set scoreboard
-	updateScores();
 	
-	// Start game with new block
-	var newBlock = new block(); 
-	newBlock.drawBlock();
-	window.setTimeout(drop,1000);
+	// Start game with new turn, and start timer
+	startTurn();
 	window.setTimeout(timer,1000);
-
-
 
 
 </script>
