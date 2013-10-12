@@ -1,0 +1,116 @@
+<html>
+<head>
+	<title>Graphics Testing</title>
+	<style>
+		#pit {
+			height:400px;
+			width: 200px;
+			border: 2px solid black;
+			background-color: #CCC;
+			position: absolute;
+		}
+		.block {
+			height: 19px;
+			width: 19px;
+			position: absolute;
+		}
+
+		.C, .c {
+			background-color: #00BFFF;
+			border: 3px #00FFFF inset;
+		}
+
+		.I, .i {
+			background-color: #FF0000;
+			border: 3px #F0F080 inset;
+		}
+
+		.J, .j {
+			background-color: #FF00FF;
+			border: 3px #ADFF2F inset;
+		}
+
+		.L, .l {
+			background-color: #FFD700;
+			border: 3px #FFFF00 inset;
+		}
+
+		.S, .s {
+			background-color: #0000FF;
+			border: 3px #1E90FF inset;
+		}
+
+		.T, .t {
+			background-color: #808080;
+			border: 3px #A9A9A9 inset;
+		}
+
+		.Z, .z {
+			background-color: #00FF00;
+			border: 3px #ADFF2F inset;
+		}
+
+	</style>
+</head>
+<body>
+<div id="pit">
+	<div class="block" style="left:0px;top:0px"></div>
+	<div class="block" style="left:25px;top:0px"></div>
+	<div class="block" style="left:0px;top:25px"></div>
+	<div class="block" style="left:25px;top:25px"></div>
+</div>
+
+<script>
+	function Pit(orientation,blank) {
+
+		this.orientation = orientation;
+		this.blank = blank;
+		
+		// Set width and height of pit based on screen orientation
+		this.w = (this.orientation == "landscape" ? 15 : 10);
+		this.h = (this.orientation == "landscape" ? 10 : 15);
+
+		// Find center of pit -- where new blocks appear
+		this.center = (parseInt(this.w/2))-1;
+
+		// Add new blank row (array) at top of pit based on width
+		this.addRow = function() {
+			var newRow = new Array();
+			for (var i = 0; i < this.w; i++) {
+				newRow[i] = this.blank;
+			}
+			this.matrix.unshift(newRow);
+		}
+
+		// Create pit matrix of blank rows based on height 
+		this.matrix = new Array();
+		for (var i = 0; i < this.h; i++) {
+			this.addRow();
+		}
+
+		// Update matrix space
+		this.updateSpace = function(column,row,character) {
+			this.matrix[row][column] = character;
+		}
+
+		// Output pit, from matrix array, in pit div
+
+		this.printPit = function() {
+			var pitHTML = ""
+			for (var i = 0; i < this.h; i++) {
+				for (var j = 0; j < this.w; j++) {
+					if (this.matrix[i][j] != this.blank) {
+						pitHTML += 	'<div class="block '+this.matrix[i][j]+'" style="left:'+(j*25)+'px;top:'+(i*25)+'px"></div>'
+					}
+				}
+			}
+			document.getElementById('pit').innerHTML = pitHTML;
+		}
+
+
+	}	
+
+	var pit = new Pit("portrait", " ")
+</script>
+</body>
+</html>

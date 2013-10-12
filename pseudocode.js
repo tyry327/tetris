@@ -19,8 +19,6 @@
 STILL TO DO!
 
 Mobile Features
---Auto-pause on screen orientation change
---Get location during score saving
 --Add browser feature support checks
 
 Game Logic
@@ -29,8 +27,8 @@ Game Logic
 BUGS
 -- Figure out how to add callback so websocket routine waits for user location
 -- Get counterclockwise rotation working
+-- Get sound effects working on phone
 -- Line 650 - else statement to draw a partial block at the end of the game is not getting executed
-
 
 TIME ALLOWING
 --Make high scores page more readable (display in a table)

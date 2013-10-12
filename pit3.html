@@ -3,32 +3,92 @@
 <head>
 	<title>Pit Building</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<style>
+		#pit {
+			height: 375px;
+			width: 250px;
+			border: 2px solid black;
+			background-color: black;
+			position: absolute;
+			left: 20px;
+			top: 20px;
+		}
+		#controls {
+			position: absolute;
+			top: 400px;
+			left: 20px;
+			border: 2px solid black;
+		}
+		.block {
+			height: 19px;
+			width: 19px;
+			position: absolute;
+		}
+
+		.C, .c {
+			background-color: #00BFFF;
+			border: 3px #00FFFF inset;
+		}
+
+		.I, .i {
+			background-color: #FF0000;
+			border: 3px #F24444 inset;
+		}
+
+		.J, .j {
+			background-color: #FF00FF;
+			border: 3px #F244F2 inset;
+		}
+
+		.L, .l {
+			background-color: #FFD700;
+			border: 3px #FFFF00 inset;
+		}
+
+		.S, .s {
+			background-color: #0000FF;
+			border: 3px #4444F2 inset;
+		}
+
+		.T, .t {
+			background-color: #808080;
+			border: 3px #A9A9A9 inset;
+		}
+
+		.Z, .z {
+			background-color: #00FF00;
+			border: 3px #ADFF2F inset;
+		}
+
+	</style>
 </head>
 <body>
 
 <div id="pit"></div>
 
-<p id="blockreport"></p>
-<p id="fitreport"></p>
-<p id="action"></p>
+<div id="controls">
 
-<button onclick="block.moveLeft()">Move Left</button>
-<button onclick="block.moveRight()">Move Right</button>
-<br>
-<button onclick="block.rotate('clockwise')">Rotate</button>
-<button onclick="block.rotate('counter')">Rotate Counterclockwise</button>
-<br>
-<button onclick="block.dropToBottom()">Drop</button>
-<button id="pause" onclick="pause()">Pause</button>
+	<p id="blockreport"></p>
+	<p id="fitreport"></p>
+	<p id="action"></p>
 
-<h3>Scoreboard</h3>
-<p>Lines: <span id="lines">0</span></p>
-<p>Score: <span id="score">0</span></p>
-<p>Game time: <span id="time">00:00</span></p>
+	<button onclick="block.moveLeft()">Move Left</button>
+	<button onclick="block.moveRight()">Move Right</button>
+	<br>
+	<button onclick="block.rotate('clockwise')">Rotate</button>
+	<button onclick="block.rotate('counter')">Rotate Counterclockwise</button>
+	<br>
+	<button onclick="block.dropToBottom()">Drop</button>
+	<button id="pause" onclick="pause()">Pause</button>
+
+	<h3>Scoreboard</h3>
+	<p>Lines: <span id="lines">0</span></p>
+	<p>Score: <span id="score">0</span></p>
+	<p>Game time: <span id="time">00:00</span></p>
+</div>
 
 <script>
-	
-	
 
 	var lines = 0;
 	var score = 0;
@@ -194,64 +254,17 @@
 			this.matrix[row][column] = character;
 		}
 
-		// Output pit, from matrix array, in pit div
+
 		this.printPit = function() {
-			var matrixHTML = "<pre>"
-			
-			// Column numbers (for testing)
-			if (rowNumbers) {
-				matrixHTML += "   ";
-				for (var i = 0; i < this.w; i++) {
-					matrixHTML += i;
-				}
-				matrixHTML += "\n";
-			}
-
-			// Top boundary
-			matrixHTML += "   ";
-			for (var i = 0; i < this.w; i++) {
-				matrixHTML += "-"
-			}
-			matrixHTML += "\n";
-
-			// Rows
+			var pitHTML = ""
 			for (var i = 0; i < this.h; i++) {
-
-				//Row numbers for testing
-				if (rowNumbers) {
-					if (i < 10) {
-						matrixHTML += " ";
-					}
-					matrixHTML += i;
-				}
-				else {
-					matrixHTML += "  ";
-				}
-				matrixHTML += "|";
 				for (var j = 0; j < this.w; j++) {
-					matrixHTML += String(this.matrix[i][j]);
+					if (this.matrix[i][j] != this.blank) {
+						pitHTML += 	'<div class="block '+this.matrix[i][j]+'" style="left:'+(j*25)+'px;top:'+(i*25)+'px"></div>'
+					}
 				}
-				matrixHTML += "|\n";
 			}
-
-			// Bottom boundary
-			matrixHTML += "   ";
-			for (var i = 0; i < this.w; i++) {
-				matrixHTML += "-"
-			}
-
-			// Column numbers (for testing)
-			if (rowNumbers) {
-				matrixHTML += "\n   ";
-				for (var i = 0; i < this.w; i++) {
-					matrixHTML += i;
-				}
-				matrixHTML += "\n";
-			}
-
-			matrixHTML += "</pre>";
-
-			document.getElementById('pit').innerHTML = matrixHTML;
+			document.getElementById('pit').innerHTML = pitHTML;
 		}
 
 		this.getLastFreeRowForColumn = function(column, currentRow) {
@@ -777,7 +790,7 @@
 	}
 
 	function positionErrorHandler() {
-		userLocation = "denied";
+		userLocation = "declined";
 	}
 
 	function getLocation() {
@@ -802,8 +815,9 @@
 		gameRecord = {};
 		gameRecord.lines = lines;
 		gameRecord.score = score;
-		gameRecord.gameTime = gameTime;
-		gameRecord.name = prompt("Enter your name to save your score! (Or hit Cancel to save your score anonymously.)");
+		gameRecord.gameTime = gameTimeReadable;
+		var alertText = "Good game!\n\nRound Time: "+gameTimeReadable+"\nScore: "+score+"\nLines Completed: "+lines+"\n\nEnter your name to save your score! (Or hit Cancel to save your score anonymously.)";
+		gameRecord.name = prompt(alertText);
 		if (gameRecord.name==null) {gameRecord.name = "Anonymous";}
 		var recordId = Date.now();
 		localStorage.setItem(recordId, JSON.stringify(gameRecord));
@@ -841,7 +855,8 @@
 		var gameMinutes = (gameTime-gameSeconds)/60;
 		if (gameSeconds < 10) {gameSeconds = "0" + gameSeconds}; // Add 0 for single digits
 		if (gameMinutes < 10) {gameMinutes = "0" + gameMinutes}; // Add 0 for single digits
-		document.getElementById("time").innerHTML = gameMinutes + ":" + gameSeconds;
+		gameTimeReadable = gameMinutes + ":" + gameSeconds;
+		document.getElementById("time").innerHTML = gameTimeReadable;
 	}
 
 	//
