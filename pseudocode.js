@@ -17,8 +17,8 @@
 // Websocket URL: http://technologeeks.com/e65/submit.php?user=<fill_your_name_here>
 
 STILL TO DO!
---Size pit background based on screen orientation
 --Remove debugging code
+--Remove onclick buttons from home page, onclick events from game buttons
 --Make high scores page more readable (display in a table)
 
 BUGS

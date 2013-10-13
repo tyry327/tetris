@@ -20,7 +20,8 @@
 		<li>Score: <span id="score">0</span></li>
 	</ul>
 
-<button id="pause" ontouchend="pause()">Pause</button>
+<button id="pause" onclick="pause()" ontouchend="pause()">Pause</button><br>
+<button id="end" onclick="confirmEnd()" ontouchend="confirmEnd()">End Game</button>
 
 <!-- Uncomment the following for non-touch controls (for testing on desktop)-->
 
@@ -729,6 +730,18 @@
 		sendScoreToServer();
 	}
 
+	function confirmEnd() {
+		if (!paused) {pause()};
+		var check=confirm("Are you sure you want to quit? Press 'OK' to end this game, or 'Cancel' to keep playing.");
+		if (check==true) {
+			endGame();
+		}
+		else {
+			pause(); // Resume game
+		}
+
+	}
+
 	//
 	// Save score at end of game
 	//
@@ -758,6 +771,7 @@
 		websocket.onmessage = function (evt) { // For testing with echo.websocket.org
 			console.log("Message received: " + evt.data);
 		}
+		window.location = 'main.html';
 	}
 
 	function saveScore() {

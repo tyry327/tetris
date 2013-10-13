@@ -21,14 +21,17 @@ body {
 
 #controls {
 	position: absolute;
-	top: 387px;
-	left: 5px;
 	border: 2px solid black;
 	padding: 6px;
 }
 
 .portrait #controls {
 	width: 238px;
+}
+
+.landscape #controls {
+	top: 5px;
+	left: 389px;
 }
 
 ul#stats {
@@ -45,6 +48,13 @@ ul#stats {
 	top: 5px;
 	left: 150px;
 }
+
+.portrait #end {
+	position: absolute;
+	top: 30px;
+	left: 150px;
+}
+
 
 .block {
 	height: 19px;
