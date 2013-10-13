@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>You're Playing Tetris!</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="viewport" content="width=device-width, height=device-height, user-scalable=no">
 	<link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
@@ -25,7 +25,7 @@
 
 <!-- Uncomment the following for non-touch controls (for testing on desktop)-->
 
-<div id="browserButtons">
+<!-- <div id="browserButtons">
 		<br>
 		<br>
 		<button onclick="block.moveLeft()">Move Left</button>
@@ -35,7 +35,7 @@
 		<button onclick="block.rotate('counter')">Rotate Counterclockwise</button>
 		<br>
 		<button onclick="block.dropToBottom()">Drop</button>
-</div>
+</div> -->
 
 </div>
 
@@ -779,7 +779,7 @@
 		gameRecord.gameTime = gameTimeReadable;
 		var alertText = "Good game!\n\nRound Time: "+gameTimeReadable+"\nScore: "+score+"\nLines Completed: "+lines+"\n\nEnter your name to save your score! (Or hit Cancel to save your score anonymously.)";
 		gameRecord.name = prompt(alertText);
-		if (gameRecord.name==null) {gameRecord.name = "Anonymous";}
+		if (gameRecord.name==null || gameRecord.name == "") {gameRecord.name = "Anonymous";}
 		var recordId = Date.now();
 		localStorage.setItem(recordId, JSON.stringify(gameRecord));
 

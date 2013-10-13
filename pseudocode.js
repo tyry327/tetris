@@ -18,8 +18,10 @@
 
 STILL TO DO!
 --Fix layout so everything fits on screen
+, initial-scale=1.0, maximum-scale=1.0, 
 --Remove debugging code
 --Remove onclick buttons from home page, onclick events from game and score buttons
+--Remove extraneous files from tetris directory 
 
 BUGS
 -- Figure out how to add callback so websocket routine waits for user location
