@@ -3,9 +3,11 @@
 <head>
 	<title>High Scores</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
 	<h1>High Scores</h1>
+	<button onclick="buttonHandler('main.html')" ontouchend="buttonHandler('main.html')">Return to Menu</button>
 	<div id="scores"></div>
 
 	<script>
@@ -16,12 +18,21 @@
 				document.getElementById("scores").innerHTML = "There are no high scores yet!";
 			}
 			else {
+				records = "<table><tr><th>Name</th><th>Score</th><th>Lines</th><th>Duration<th></tr>"
 				for (i = 0; i < localStorage.length; i++) {
+					records += "<tr>"
 					record = JSON.parse(localStorage.getItem(localStorage.key(i)))
-					records += "<p> Name: " + record.name + " Score: " + record.score + " Lines: " + record.lines + " Duration: " + record.gameTime + "</p>"
-					document.getElementById("scores").innerHTML = records;
+					records += "<td>" + record.name + "</td><td>" + record.score + "</td><td>" + record.lines + "</td><td>" + record.gameTime + "</td>"
+					records += "</tr>"
 				}
+				records += "</table>"
+				document.getElementById("scores").innerHTML = records;
 			}
+
+		function buttonHandler (link)
+		{
+			window.location = link;
+		}
 	</script>
 </body>
 </html>

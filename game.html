@@ -1,47 +1,99 @@
 <!DOCTYPE html>
-
 <html>
 <head>
 	<title>You're Playing Tetris!</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<link rel="stylesheet" type="text/css" href="style.css">
 </head>
-
 <body>
-	
-<!--Set up -->
-	<h3>Setup</h3>
 
-	<p>Draw a pit 
-		<span id="width"></span> pixels wide by 
-		<span id="height"></span> pixels high.
-	</p>
+<div id="pit"></div>
 
-<!--Game Play -->
-	<h3>Game Play</h3>
+<div id="controls">
 
-	<p>Cube <span id="drop">appears in row 0</span> and <span id="action">...</span></p>
+<!-- 	<p id="blockreport"></p>
+	<p id="fitreport"></p>
+	<p id="action"></p> -->
+	<ul id="stats">
+		<li>Time: <span id="time">00:00</span></li>
+		<li>Lines: <span id="lines">0</span></li>
+		<li>Score: <span id="score">0</span></li>
+	</ul>
 
-<!--If screen orientation changes-->
-	<h3>Orientation Change</h3>
+<button id="pause" onclick="pause()" ontouchend="pause()">Pause</button><br>
+<button id="end" onclick="confirmEnd()" ontouchend="confirmEnd()">End Game</button>
 
-	<p id ="change"></p>
+<!-- Uncomment the following for non-touch controls (for testing on desktop)-->
+
+<div id="browserButtons">
+		<br>
+		<br>
+		<button onclick="block.moveLeft()">Move Left</button>
+		<button onclick="block.moveRight()">Move Right</button>
+		<br>
+		<button onclick="block.rotate('clockwise')">Rotate</button>
+		<button onclick="block.rotate('counter')">Rotate Counterclockwise</button>
+		<br>
+		<button onclick="block.dropToBottom()">Drop</button>
+</div>
+
+</div>
 
 <script>
+
+	var lines = 0;
+	var score = 0;
+	var userLocation = "test";
+	var gameTime = 0;
+	var tetris = 0;
+	var paused = false;
+	var gameOver = false;
+	var rowNumbers = true;
+	var blank = " ";
+
+	//
+	// Sound effects
+	//
+	var clearRowSound = new Audio("sounds/clear-row.wav");
+	var touchSound = new Audio("sounds/touch.wav")
+
+	//
+	// Initial device orientation detection
+	//
 	var initialOrientation = "";
 
-	// On page load, get the width and height of the browser window,
-	// draw a pit of the appropriate dimensions
+	// Get the width and height of the browser window
 	// and set initialOrientation to portrait or landscape accordingly
 
-	window.onload = function () {
+	width = window.innerWidth;
+	height = window.innerHeight;
+	initialOrientation = (width > height ? "landscape" : "portrait");
+	document.body.className = initialOrientation;
 
-		width = window.innerWidth;
-		height = window.innerHeight;
+	// Track whether the browser window orientation changes.
+	// Note: We don't care if the phone orientation has changed
+	// unless the browser window orientation has also changed. 
+	// If the user wants to play while lying in bed, no big deal 
+	// as long as she has the device orientation locked --
+	// in which case I don't want to interrupt game play.
 
-		document.getElementById('width').innerHTML = width;
-		document.getElementById('height').innerHTML = height;
+	function orientationCheck (e) {
+		
+		// Get current orientation of browser windows
 
-		initialOrientation = (width > height ? "landscape" : "portrait");
+		if (window.matchMedia("(orientation: portrait)").matches) {
+			newOrientation = "portrait";
+		}
+		else {
+			newOrientation = "landscape";
+		}
+
+		// If the current orientation does not match the initial orientation, pause and alert
+
+		if (initialOrientation != newOrientation) {
+			if (!paused) {pause();}
+			alert("Your device orientation has changed from " + initialOrientation + " to " + newOrientation + ". Please return your device to its original position, lock your screen orientation, or start a new game to play in " + newOrientation + " mode.");
+		} 
 	}
 
 	//
@@ -74,61 +126,725 @@
 		changeX = startX-endX;
 		changeY = startY-endY;
 
-		if (Math.abs(changeX) < 7 && Math.abs(changeY) < 7) {	
-			action = "rotates clockwise";						// Tap
+		if (Math.abs(changeX) < 7 && Math.abs(changeY) < 7) {
+			touchSound.play();
+			touchSound.currentTime=0;
+			action = "clockwise";								// Tap
+			block.rotate('clockwise');
 		}
 		else {
 			if (Math.abs(changeX) > Math.abs(changeY)) {
 				if (changeX > 0) {
-					action = "moves left";						// Left swipe
+					touchSound.play();
+					touchSound.currentTime=0;
+					action = "left";
+					block.moveLeft();						// Left swipe
 				}
 				else {
-					action = "moves right";						// Right swipe
+					touchSound.play();
+					touchSound.currentTime=0;
+					action = "right";
+					block.moveRight();						// Right swipe
 				}
 			}
 			else {
 				if (changeY > 0) {
-					action = "rotates counter-clockwise";		// Up swipe
-				}
+					touchSound.play();
+					touchSound.currentTime=0;
+					action = "counter-clockwise";				// Up swipe
+					block.rotate('counter');
+				}	
 				else {
-					action = "accelerates down";				// Down swipe
+					touchSound.play();
+					touchSound.currentTime=0;
+					action = "fall";							// Down swipe
+					block.dropToBottom();
 				}
 			}
 		}
 
-		document.getElementById('action').innerHTML = action;
+/*		document.getElementById('action').innerHTML = action;
+*/	}
+
+	function updateScores() {
+		document.getElementById('lines').innerHTML = lines;
+		document.getElementById('score').innerHTML = score;
 	}
 
-	// Track whether the browser window orientation changes.
-	// Note: We don't care if the phone orientation has changed
-	// unless the browser window orientation has also changed. 
-	// If the user wants to play while lying in bed, no big deal 
-	// as long as she has the device orientation locked --
-	// in which case I don't want to interrupt game play.
+	function Pit(orientation,blank) {
 
-	function orientationCheck (e) {
+		this.orientation = orientation;
+		this.blank = blank;
 		
-		// Get current orientation of browser windows
+		// Set width and height of pit based on screen orientation
+		this.w = (this.orientation == "landscape" ? 15 : 10);
+		this.h = (this.orientation == "landscape" ? 10 : 15);
 
-		if (window.matchMedia("(orientation: portrait)").matches) {
-			newOrientation = "portrait";
+		// Find center of pit -- where new blocks appear
+		this.center = (parseInt(this.w/2))-1;
+
+		// Add new blank row (array) at top of pit based on width
+		this.addRow = function() {
+			var newRow = new Array();
+			for (var i = 0; i < this.w; i++) {
+				newRow[i] = this.blank;
+			}
+			this.matrix.unshift(newRow);
+		}
+
+		// Create pit matrix of blank rows based on height 
+		this.matrix = new Array();
+		for (var i = 0; i < this.h; i++) {
+			this.addRow();
+		}
+
+		// Update matrix space
+		this.updateSpace = function(column,row,character) {
+			this.matrix[row][column] = character;
+		}
+
+
+		this.printPit = function() {
+			var pitHTML = ""
+			for (var i = 0; i < this.h; i++) {
+				for (var j = 0; j < this.w; j++) {
+					if (this.matrix[i][j] != this.blank) {
+						pitHTML += 	'<div class="block '+this.matrix[i][j]+'" style="left:'+(j*25)+'px;top:'+(i*25)+'px"></div>'
+					}
+				}
+			}
+			document.getElementById('pit').innerHTML = pitHTML;
+		}
+
+		this.getLastFreeRowForColumn = function(column, currentRow) {
+			var lastFreeRow = this.h-1;
+			for (var row = currentRow+1; row < this.h; row++) {
+				if (this.matrix[row][column] != pit.blank && this.matrix[row][column] != block.type) {
+					lastFreeRow = row-1;
+					return lastFreeRow;
+				}
+			}
+			return lastFreeRow;
+		}
+
+		this.getLastFreeColumnToRightForRow = function(currentColumn, row) {
+			var lastFreeColumn = this.w-1;
+			for (var column = currentColumn + 1; column < this.w; column++) {
+				if (this.matrix[row][column] != pit.blank && this.matrix[row][column] != block.type) {
+					lastFreeColumn = column-1;
+					return lastFreeColumn;
+				}
+			}
+			return lastFreeColumn;
+		}
+
+		this.getLastFreeColumnToLeftForRow = function(currentColumn, row) {
+			var lastFreeColumn = 0;
+			for (var column = currentColumn - 1; column >= 0; column--) {
+				if (this.matrix[row][column] != pit.blank && this.matrix[row][column] != block.type) {
+					lastFreeColumn = column+1;
+					return lastFreeColumn;
+				}
+			}
+			return lastFreeColumn;
+		}
+
+		this.checkRows = function() {
+			var turnLines = 0;
+			for (var i = 0; i < this.h; i++) {
+				var full = true;
+				for (var j = 0; j < this.w; j++) {
+					if (this.matrix[i][j] == this.blank) {
+						full = false;
+					}
+				}
+				if (full) {
+					clearRowSound.play();
+					this.matrix.splice(i,1);
+					this.addRow();
+					turnLines++;
+				}
+			}
+			return turnLines;
+		}
+	} // end of class
+
+	function Block() {
+
+		// Randomly set block type
+		var typeNumber = Math.floor(Math.random()*7);
+		// var typeNumber = 0;
+		var types = ["C","I","J","L","S","T","Z"];
+		this.type = types[typeNumber];
+
+		// Set rotation to 0 and start block off at top center of pit
+		this.rotation = 0;
+		this.top = 0;
+		this.left = pit.center;
+
+		this.blockSpots = {
+			'C': {
+				0: [
+					[0,0],
+					[1,0],
+					[0,1],
+					[1,1]
+				],
+				90: [
+					[0,0],
+					[1,0],
+					[0,1],
+					[1,1]
+				],
+				180: [
+					[0,0],
+					[1,0],
+					[0,1],
+					[1,1]
+				],
+				270: [
+					[0,0],
+					[1,0],
+					[0,1],
+					[1,1]
+				]
+			},
+			'I': {
+				0: [
+					[0,0],
+					[0,1],
+					[0,2],
+					[0,3]
+				],
+				90: [
+					[0,0],
+					[1,0],
+					[2,0],
+					[3,0]
+				],
+				180: [
+					[0,0],
+					[0,1],
+					[0,2],
+					[0,3]
+				],
+				270: [
+					[0,0],
+					[1,0],
+					[2,0],
+					[3,0]
+				]
+			},
+			'L': {
+				0: [
+					[0,0],
+					[0,1],
+					[0,2],
+					[1,2]
+				],
+				90: [
+					[0,0],
+					[1,0],
+					[2,0],
+					[0,1]
+				],
+				180: [
+					[0,0],
+					[1,0],
+					[1,1],
+					[1,2]
+				],
+				270: [
+					[2,0],
+					[0,1],
+					[1,1],
+					[2,1]
+				]
+			},
+			'J': {
+				0: [
+					[1,0],
+					[1,1],
+					[0,2],
+					[1,2]
+				],
+				90: [
+					[0,0],
+					[0,1],
+					[1,1],
+					[2,1]
+				],		
+				180: [
+					[0,0],
+					[1,0],
+					[0,1],
+					[0,2]
+				],
+				270: [
+					[0,0],
+					[1,0],
+					[2,0],
+					[2,1]
+				]
+			},
+			'T': {
+				0: [
+					[0,0],
+					[1,0],
+					[2,0],
+					[1,1]
+				],
+				90: [
+					[1,0],
+					[0,1],
+					[1,1],
+					[1,2]
+				],		
+				180: [
+					[1,0],
+					[0,1],
+					[1,1],
+					[2,1]
+				],
+				270: [
+					[0,0],
+					[0,1],
+					[1,1],
+					[0,2]
+				]
+			},
+			'S': {
+				0: [
+					[1,0],
+					[2,0],
+					[0,1],
+					[1,1]
+				],
+				90: [
+					[0,0],
+					[0,1],
+					[1,1],
+					[1,2]
+				],		
+				180: [
+					[1,0],
+					[2,0],
+					[0,1],
+					[1,1]
+				],
+				270: [
+					[0,0],
+					[0,1],
+					[1,1],
+					[1,2]
+				]
+			},
+			'Z': {
+				0: [
+					[0,0],
+					[1,0],
+					[1,1],
+					[2,1]
+				],
+				90: [
+					[1,0],
+					[0,1],
+					[1,1],
+					[0,2]
+				],		
+				180: [
+					[0,0],
+					[1,0],
+					[1,1],
+					[2,1]
+				],
+				270: [
+					[1,0],
+					[0,1],
+					[1,1],
+					[0,2]
+				]
+			}
+		}
+
+		this.testBlock = function() {
+			var fits = true;
+			var inPit = false;
+			for (var i = 0; i < 4; i++)	{
+				var X = this.blockSpots[this.type][this.rotation][i][0] + this.left;
+				var Y = this.blockSpots[this.type][this.rotation][i][1] + this.top;
+				if (Y >= 0) {
+					inPit = true;
+					if (pit.matrix[Y][X] != pit.blank) {fits = false;}
+				}
+			}
+			if (fits && inPit) {
+				return true;
+			}
+			else if (this.top > -3) {
+				this.top--;
+				this.testBlock();
+			}
+			else {
+				return false;
+			}
+		}
+
+		this.drawBlock = function(mode) {
+			if (mode == "move") {
+				character = this.type;
+			}
+			else if (mode == "final") {
+				character = this.type.toLowerCase();
+			}
+			else {
+				character = blank;
+			}
+			for (var i = 0; i < 4; i++)	{
+				var X = this.blockSpots[this.type][this.rotation][i][0] + this.left;
+				var Y = this.blockSpots[this.type][this.rotation][i][1] + this.top;
+				if (Y >= 0) {pit.updateSpace(X,Y,character);}
+			}
+			pit.printPit();
+		}
+
+		// Drop block one space, reset timer to drop again unless at last free row
+		this.drop = function() {
+			if (!paused) {
+				var bottomLimit = this.findBottomLimit();
+				if (this.top < bottomLimit) {
+					this.drawBlock("erase");
+					this.top++;
+/*					document.getElementById('blockreport').innerHTML = 'Block is at row ' + this.top;
+*/					this.drawBlock("move");
+					window.setTimeout("block.drop()",1000);
+				}
+				else {
+					endTurn();
+				}
+			}
+		}
+
+		this.moveRight = function() {
+			if (!paused) {
+				var rightLimit = this.findRightLimit();
+				if (this.left < rightLimit) {
+					this.drawBlock("erase");
+					this.left++;
+					this.drawBlock("move");
+				}
+			}
+		}
+
+		this.moveLeft = function() {
+			if (!paused) {
+				var leftLimit = this.findLeftLimit();
+				if (this.left > leftLimit) {
+					this.drawBlock("erase");
+					this.left--;
+					this.drawBlock("move");
+				}
+			}
+		}
+
+		this.dropToBottom = function() {
+			if (!paused) {
+				var bottomLimit = this.findBottomLimit();
+				if (this.top < bottomLimit) {
+					this.drawBlock("erase");				
+					this.top = bottomLimit;
+					this.drawBlock("final")				
+				}
+			}	
+		}
+
+		// Find lowest point block can drop to
+		this.findBottomLimit = function() {
+			var bottomLimit = pit.h-1;
+			var spots = this.blockSpots[this.type][this.rotation];
+			for (var i = 0; i < 4; i++) {
+				var columnToCheck = spots[i][0] + this.left;
+				var rowToStartFrom = spots[i][1] + this.top;
+				var bottomForColumn = pit.getLastFreeRowForColumn(columnToCheck,rowToStartFrom)
+				bottomForColumn -= spots[i][1];
+				if (bottomForColumn < bottomLimit) {
+					bottomLimit = bottomForColumn;
+				}
+			}
+			return bottomLimit;
+		}
+
+		// Find right-most point block can move to
+		this.findRightLimit = function() {
+			var rightLimit = pit.w-1;
+			var spots = this.blockSpots[this.type][this.rotation];
+			for (var i = 0; i < 4; i++) {
+				var columnToStartFrom = spots[i][0] + this.left;
+				var rowToCheck = spots [i][1] + this.top;
+				var rightLimitForRow = pit.getLastFreeColumnToRightForRow(columnToStartFrom,rowToCheck);
+				rightLimitForRow -= spots[i][0];
+				if (rightLimitForRow < rightLimit) {
+					rightLimit = rightLimitForRow;
+				}
+			}
+			return rightLimit;
+		}
+
+		// Find left-most point block can move to
+		this.findLeftLimit = function() {
+			var leftLimit = 0;
+			var spots = this.blockSpots[this.type][this.rotation];
+			for (var i = 0; i < 4; i++) {
+				var columnToStartFrom = spots[i][0] + this.left;
+				var rowToCheck = spots[i][1] + this.top;
+				var leftLimitForRow = pit.getLastFreeColumnToLeftForRow(columnToStartFrom,rowToCheck);
+				leftLimitForRow -= spots[i][0];
+				if (leftLimitForRow > leftLimit) {
+					leftLimit = leftLimitForRow;
+				}
+			}
+			return leftLimit;
+		}
+
+		//
+		// Rotation!
+		//
+
+		this.rotate = function(direction) {
+			if (!paused) {
+				// Get new rotation, clockwise +90 or counterclockwise -90
+				if (direction === "clockwise") { 
+					newRotation = this.rotation + 90;
+					if (newRotation > 270) {newRotation = 0;} // if past 270, reset to 0
+				}
+				else {
+					newRotation = this.rotation - 90;
+					if (newRotation < 0) {newRotation = 270;} // if past 0, reset to 270
+				}
+				
+				// Check to see if block will move outside pit with new rotation,
+				// or overlap existing blocks
+				var illegalRotation = false;
+				var spotsChecked = "";
+				for (var i = 0; i < 4; i++) {
+					var newColumn = this.blockSpots[this.type][newRotation][i][0] + this.left;
+					var newRow = this.blockSpots[this.type][newRotation][i][1] + this.top;
+					if (newColumn >= pit.w || (pit.matrix[newColumn][newRow] != pit.blank && pit.matrix[newColumn][newRow] != this.type)) {
+						illegalRotation = true;
+					}
+					spotsChecked += newColumn + "," + newRow + ";";
+				}
+
+				// If block will stay in bounds, erase, set new rotation, and redraw
+				if (!illegalRotation) {
+					this.drawBlock("erase");
+					this.rotation = newRotation;
+					this.drawBlock("move");
+				}
+			}
+		}
+	} // end of class
+
+
+	function startTurn() {
+		// Create new block and draw in pit
+		block = new Block();
+/*		block.drawBlock("move");
+		window.setTimeout("block.drop()",1000);*/
+
+		// Make sure block will fit at top of pit
+		var fits = block.testBlock();
+
+		if (fits == true) {
+			if (block.top === 0) {			// If entire block fits, draw and start dropping
+/*				document.getElementById("fitreport").innerHTML = "Fits!";
+*/				block.drawBlock("move");
+				window.setTimeout("block.drop()",1000);
+			}
+			else {							// FIGURE OUT WHY THIS ISN'T EXECUTING!!!
+/*				document.getElementById("fitreport").innerHTML = "Fits partially";
+*/				block.drawBlock("final");	// If only part will fit, draw as final and end game
+				endGame();
+			}
+		}
+		else {							
+/*			document.getElementById("fitreport").innerHTML = "Does not fit";
+*/			endGame();						// If no part will fit, end game without drawing block
+		}
+	}
+
+	function endTurn() {
+		// Set block characters to lowercase
+		block.drawBlock("final");
+/*		document.getElementById('blockreport').innerHTML = 'Block is at row ' + block.top + ' and is done dropping';*/
+
+		// Check for completed rows
+		var rowsCompleted = pit.checkRows();
+
+		// Score turn based on completed rows and update display of scores
+		scoreTurn(rowsCompleted);
+		updateScores();
+
+		// Start new turn
+		startTurn();
+	}
+
+	// Score turn and update scoreboard based on lines completed
+	// then start new turn with a new block
+	function scoreTurn(rowsCompleted) {
+		lines += rowsCompleted;
+		switch (rowsCompleted) {
+			case 0:
+				tetris = 0;
+				break;
+			case 1:
+				tetris = 0;
+				score += 100;
+				break;
+			case 2:
+				tetris = 0;
+				score += 300;
+				break;
+			case 3:
+				tetris = 0;
+				score += 600;
+				break;
+			case 4:
+				tetris ++;
+				score += 800;
+				break;
+		}
+		if (tetris == 2) {
+			score += 1600;
+			tetris = 0;
+		}
+	}
+
+	function endGame() {
+		gameOver = true;
+/*		document.getElementById('blockreport').innerHTML = 'Block is at row ' + block.top + " and GAME OVER!";
+*/		saveScore();
+		sendScoreToServer();
+	}
+
+	function confirmEnd() {
+		if (!paused) {pause()};
+		var check=confirm("Are you sure you want to quit? Press 'OK' to end this game, or 'Cancel' to keep playing.");
+		if (check==true) {
+			endGame();
 		}
 		else {
-			newOrientation = "landscape";
+			pause(); // Resume game
 		}
 
-		// If the current orientation does not match the initial orientation, pause and alert
-
-		if (initialOrientation != newOrientation) {
-			document.getElementById('change').innerHTML = "Your browser window has changed from " + initialOrientation + " to " + newOrientation + ". Please return your device to its original position, lock your screen orientation, or start a new game to play in " + newOrientation + " mode.";
-		} 
 	}
+
+	//
+	// Save score at end of game
+	//
+
+	function positionHandler(Position) {
+		var latitude = Position.coords.latitude;
+		var longitude = Position.coords.longitude;
+		userLocation = latitude+","+longitude;
+	}
+
+	function positionErrorHandler() {
+		userLocation = "declined";
+	}
+
+	function getLocation() {
+		navigator.geolocation.getCurrentPosition(positionHandler, positionErrorHandler);
+	}
+
+	function sendScoreToServer() {
+		getLocation();
+		var webSocketData = "Name="+gameRecord.name+"&HighScore="+score+"&Location="+userLocation;
+		// var websocket = new WebSocket('ws://technologeeks.com/e65/submit.php?user=johanna.bodnyk')
+		var websocket = new WebSocket('ws://echo.websocket.org');
+		websocket.onopen = function() {
+			websocket.send(webSocketData);
+		}
+		websocket.onmessage = function (evt) { // For testing with echo.websocket.org
+			console.log("Message received: " + evt.data);
+		}
+		window.location = 'main.html';
+	}
+
+	function saveScore() {
+		// Save score locally
+		gameRecord = {};
+		gameRecord.lines = lines;
+		gameRecord.score = score;
+		gameRecord.gameTime = gameTimeReadable;
+		var alertText = "Good game!\n\nRound Time: "+gameTimeReadable+"\nScore: "+score+"\nLines Completed: "+lines+"\n\nEnter your name to save your score! (Or hit Cancel to save your score anonymously.)";
+		gameRecord.name = prompt(alertText);
+		if (gameRecord.name==null) {gameRecord.name = "Anonymous";}
+		var recordId = Date.now();
+		localStorage.setItem(recordId, JSON.stringify(gameRecord));
+
+		// Get location to send to server, open send via websocket after location is check
+		getLocation();
+	}
+
+
+	//
+	// Pause and resume game
+	//
+	function pause() {
+		if (!paused) {
+			paused = true;
+			document.getElementById('pause').innerHTML = "Resume";
+		}
+		else {
+			paused = false;
+			document.getElementById('pause').innerHTML = "Pause";
+			window.setTimeout("block.drop()",1000); // Start dropping block again
+			window.setTimeout(timer,1000); // Start timer again
+		}
+	}
+
+	//
+	//	Game timer
+	//
+	function timer() {
+		if (!paused && !gameOver) {
+			gameTime++;
+			window.setTimeout(timer,1000);
+		}
+		var gameSeconds = gameTime%60;
+		var gameMinutes = (gameTime-gameSeconds)/60;
+		if (gameSeconds < 10) {gameSeconds = "0" + gameSeconds}; // Add 0 for single digits
+		if (gameMinutes < 10) {gameMinutes = "0" + gameMinutes}; // Add 0 for single digits
+		gameTimeReadable = gameMinutes + ":" + gameSeconds;
+		document.getElementById("time").innerHTML = gameTimeReadable;
+	}
+
+	//
+	// Touch event and screen orientation listeners
+	//
 
 	window.addEventListener('touchstart', touchStart, false);
 	window.addEventListener('touchend', touchEnd, false);
 	window.addEventListener('deviceorientation', orientationCheck, false);
 
 
+	//
+	// Initialize new game
+	//
+
+	// Create pit object
+	var pit = new Pit(initialOrientation,blank);
+
+	// Print blank bit
+	pit.printPit();
+	
+	// Start game with new turn, and start game timer
+	startTurn();
+	window.setTimeout(timer,1000);
+
+
 </script>
+
 </body>
-</html>
+</html>  

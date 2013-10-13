@@ -17,13 +17,12 @@
 // Websocket URL: http://technologeeks.com/e65/submit.php?user=<fill_your_name_here>
 
 STILL TO DO!
+--Fix layout so everything fits on screen
 --Remove debugging code
---Remove onclick buttons from home page, onclick events from game buttons
---Make high scores page more readable (display in a table)
+--Remove onclick buttons from home page, onclick events from game and score buttons
 
 BUGS
 -- Figure out how to add callback so websocket routine waits for user location
--- Get counterclockwise rotation working
 -- Get sound effects working on phone
 -- Line 650 - else statement to draw a partial block at the end of the game is not getting executed
 

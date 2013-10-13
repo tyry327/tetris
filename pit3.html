@@ -25,7 +25,6 @@
 
 <!-- Uncomment the following for non-touch controls (for testing on desktop)-->
 
-<!-- <button id="pause" onclick="pause()">Pause</button>
 <div id="browserButtons">
 		<br>
 		<br>
@@ -36,8 +35,7 @@
 		<button onclick="block.rotate('counter')">Rotate Counterclockwise</button>
 		<br>
 		<button onclick="block.dropToBottom()">Drop</button>
-	</div>
- -->
+</div>
 
 </div>
 
@@ -617,12 +615,11 @@
 				// Get new rotation, clockwise +90 or counterclockwise -90
 				if (direction === "clockwise") { 
 					newRotation = this.rotation + 90;
+					if (newRotation > 270) {newRotation = 0;} // if past 270, reset to 0
 				}
 				else {
 					newRotation = this.rotation - 90;
-				}
-				if (newRotation > 270 || newRotation < 0) {
-					newRotation = 0;
+					if (newRotation < 0) {newRotation = 270;} // if past 0, reset to 270
 				}
 				
 				// Check to see if block will move outside pit with new rotation,

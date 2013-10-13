@@ -26,6 +26,7 @@ body {
 }
 
 .portrait #controls {
+	top: 389px;
 	width: 238px;
 }
 
@@ -95,4 +96,8 @@ ul#stats {
 .Z, .z {
 	background-color: #00FF00;
 	border: 3px #ADFF2F inset;
+}
+
+th {
+	font-weight: bold;
 }
