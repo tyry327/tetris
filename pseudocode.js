@@ -17,12 +17,9 @@
 // Websocket URL: http://technologeeks.com/e65/submit.php?user=<fill_your_name_here>
 
 STILL TO DO!
-
-Mobile Features
---Add browser feature support checks
-
-Game Logic
---Add graphics
+--Size pit background based on screen orientation
+--Remove debugging code
+--Make high scores page more readable (display in a table)
 
 BUGS
 -- Figure out how to add callback so websocket routine waits for user location
@@ -31,7 +28,9 @@ BUGS
 -- Line 650 - else statement to draw a partial block at the end of the game is not getting executed
 
 TIME ALLOWING
---Make high scores page more readable (display in a table)
+--Remove browser bar
+--Add browser feature support checks
+
 
 QUESTIONS
 --Websocket URI (ws vs. http), data format

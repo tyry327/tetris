@@ -3,65 +3,7 @@
 <head>
 	<title>Pit Building</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-	<style>
-		#pit {
-			height: 375px;
-			width: 250px;
-			border: 2px solid black;
-			background-color: black;
-			position: absolute;
-			left: 20px;
-			top: 20px;
-		}
-		#controls {
-			position: absolute;
-			top: 400px;
-			left: 20px;
-			border: 2px solid black;
-		}
-		.block {
-			height: 19px;
-			width: 19px;
-			position: absolute;
-		}
-
-		.C, .c {
-			background-color: #00BFFF;
-			border: 3px #00FFFF inset;
-		}
-
-		.I, .i {
-			background-color: #FF0000;
-			border: 3px #F24444 inset;
-		}
-
-		.J, .j {
-			background-color: #FF00FF;
-			border: 3px #F244F2 inset;
-		}
-
-		.L, .l {
-			background-color: #FFD700;
-			border: 3px #FFFF00 inset;
-		}
-
-		.S, .s {
-			background-color: #0000FF;
-			border: 3px #4444F2 inset;
-		}
-
-		.T, .t {
-			background-color: #808080;
-			border: 3px #A9A9A9 inset;
-		}
-
-		.Z, .z {
-			background-color: #00FF00;
-			border: 3px #ADFF2F inset;
-		}
-
-	</style>
+	<link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
 
@@ -69,23 +11,33 @@
 
 <div id="controls">
 
-	<p id="blockreport"></p>
+<!-- 	<p id="blockreport"></p>
 	<p id="fitreport"></p>
-	<p id="action"></p>
+	<p id="action"></p> -->
+	<ul id="stats">
+		<li>Time: <span id="time">00:00</span></li>
+		<li>Lines: <span id="lines">0</span></li>
+		<li>Score: <span id="score">0</span></li>
+	</ul>
 
-	<button onclick="block.moveLeft()">Move Left</button>
-	<button onclick="block.moveRight()">Move Right</button>
-	<br>
-	<button onclick="block.rotate('clockwise')">Rotate</button>
-	<button onclick="block.rotate('counter')">Rotate Counterclockwise</button>
-	<br>
-	<button onclick="block.dropToBottom()">Drop</button>
-	<button id="pause" onclick="pause()">Pause</button>
+<button id="pause" ontouchend="pause()">Pause</button>
 
-	<h3>Scoreboard</h3>
-	<p>Lines: <span id="lines">0</span></p>
-	<p>Score: <span id="score">0</span></p>
-	<p>Game time: <span id="time">00:00</span></p>
+<!-- Uncomment the following for non-touch controls (for testing on desktop)-->
+
+<!-- <button id="pause" onclick="pause()">Pause</button>
+<div id="browserButtons">
+		<br>
+		<br>
+		<button onclick="block.moveLeft()">Move Left</button>
+		<button onclick="block.moveRight()">Move Right</button>
+		<br>
+		<button onclick="block.rotate('clockwise')">Rotate</button>
+		<button onclick="block.rotate('counter')">Rotate Counterclockwise</button>
+		<br>
+		<button onclick="block.dropToBottom()">Drop</button>
+	</div>
+ -->
+
 </div>
 
 <script>
@@ -109,7 +61,6 @@
 	//
 	// Initial device orientation detection
 	//
-
 	var initialOrientation = "";
 
 	// Get the width and height of the browser window
@@ -118,6 +69,7 @@
 	width = window.innerWidth;
 	height = window.innerHeight;
 	initialOrientation = (width > height ? "landscape" : "portrait");
+	document.body.className = initialOrientation;
 
 	// Track whether the browser window orientation changes.
 	// Note: We don't care if the phone orientation has changed
@@ -144,8 +96,6 @@
 			alert("Your device orientation has changed from " + initialOrientation + " to " + newOrientation + ". Please return your device to its original position, lock your screen orientation, or start a new game to play in " + newOrientation + " mode.");
 		} 
 	}
-
-
 
 	//
 	// Swipe and tap detection
@@ -214,8 +164,8 @@
 			}
 		}
 
-		document.getElementById('action').innerHTML = action;
-	}
+/*		document.getElementById('action').innerHTML = action;
+*/	}
 
 	function updateScores() {
 		document.getElementById('lines').innerHTML = lines;
@@ -318,7 +268,7 @@
 			}
 			return turnLines;
 		}
-	}
+	} // end of class
 
 	function Block() {
 
@@ -566,8 +516,8 @@
 				if (this.top < bottomLimit) {
 					this.drawBlock("erase");
 					this.top++;
-					document.getElementById('blockreport').innerHTML = 'Block is at row ' + this.top;
-					this.drawBlock("move");
+/*					document.getElementById('blockreport').innerHTML = 'Block is at row ' + this.top;
+*/					this.drawBlock("move");
 					window.setTimeout("block.drop()",1000);
 				}
 				else {
@@ -662,40 +612,40 @@
 		//
 
 		this.rotate = function(direction) {
-
-			// Get new rotation, clockwise +90 or counterclockwise -90
-			if (direction === "clockwise") { 
-				newRotation = this.rotation + 90;
-			}
-			else {
-				newRotation = this.rotation - 90;
-			}
-			if (newRotation > 270 || newRotation < 0) {
-				newRotation = 0;
-			}
-			
-			// Check to see if block will move outside pit with new rotation,
-			// or overlap existing blocks
-			var illegalRotation = false;
-			var spotsChecked = "";
-			for (var i = 0; i < 4; i++) {
-				var newColumn = this.blockSpots[this.type][newRotation][i][0] + this.left;
-				var newRow = this.blockSpots[this.type][newRotation][i][1] + this.top;
-				if (newColumn >= pit.w || (pit.matrix[newColumn][newRow] != pit.blank && pit.matrix[newColumn][newRow] != this.type)) {
-					illegalRotation = true;
+			if (!paused) {
+				// Get new rotation, clockwise +90 or counterclockwise -90
+				if (direction === "clockwise") { 
+					newRotation = this.rotation + 90;
 				}
-				spotsChecked += newColumn + "," + newRow + ";";
-			}
+				else {
+					newRotation = this.rotation - 90;
+				}
+				if (newRotation > 270 || newRotation < 0) {
+					newRotation = 0;
+				}
+				
+				// Check to see if block will move outside pit with new rotation,
+				// or overlap existing blocks
+				var illegalRotation = false;
+				var spotsChecked = "";
+				for (var i = 0; i < 4; i++) {
+					var newColumn = this.blockSpots[this.type][newRotation][i][0] + this.left;
+					var newRow = this.blockSpots[this.type][newRotation][i][1] + this.top;
+					if (newColumn >= pit.w || (pit.matrix[newColumn][newRow] != pit.blank && pit.matrix[newColumn][newRow] != this.type)) {
+						illegalRotation = true;
+					}
+					spotsChecked += newColumn + "," + newRow + ";";
+				}
 
-			// If block will stay in bounds, erase, set new rotation, and redraw
-			if (!illegalRotation) {
-				this.drawBlock("erase");
-				this.rotation = newRotation;
-				this.drawBlock("move");
+				// If block will stay in bounds, erase, set new rotation, and redraw
+				if (!illegalRotation) {
+					this.drawBlock("erase");
+					this.rotation = newRotation;
+					this.drawBlock("move");
+				}
 			}
 		}
-
-	}
+	} // end of class
 
 
 	function startTurn() {
@@ -709,26 +659,26 @@
 
 		if (fits == true) {
 			if (block.top === 0) {			// If entire block fits, draw and start dropping
-				document.getElementById("fitreport").innerHTML = "Fits!";
-				block.drawBlock("move");
+/*				document.getElementById("fitreport").innerHTML = "Fits!";
+*/				block.drawBlock("move");
 				window.setTimeout("block.drop()",1000);
 			}
 			else {							// FIGURE OUT WHY THIS ISN'T EXECUTING!!!
-				document.getElementById("fitreport").innerHTML = "Fits partially";
-				block.drawBlock("final");	// If only part will fit, draw as final and end game
+/*				document.getElementById("fitreport").innerHTML = "Fits partially";
+*/				block.drawBlock("final");	// If only part will fit, draw as final and end game
 				endGame();
 			}
 		}
 		else {							
-			document.getElementById("fitreport").innerHTML = "Does not fit";
-			endGame();						// If no part will fit, end game without drawing block
+/*			document.getElementById("fitreport").innerHTML = "Does not fit";
+*/			endGame();						// If no part will fit, end game without drawing block
 		}
 	}
 
 	function endTurn() {
 		// Set block characters to lowercase
 		block.drawBlock("final");
-		document.getElementById('blockreport').innerHTML = 'Block is at row ' + block.top + ' and is done dropping';
+/*		document.getElementById('blockreport').innerHTML = 'Block is at row ' + block.top + ' and is done dropping';*/
 
 		// Check for completed rows
 		var rowsCompleted = pit.checkRows();
@@ -774,8 +724,8 @@
 
 	function endGame() {
 		gameOver = true;
-		document.getElementById('blockreport').innerHTML = 'Block is at row ' + block.top + " and GAME OVER!";
-		saveScore();
+/*		document.getElementById('blockreport').innerHTML = 'Block is at row ' + block.top + " and GAME OVER!";
+*/		saveScore();
 		sendScoreToServer();
 	}
 

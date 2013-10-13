@@ -1,0 +1,88 @@
+body {
+	font-family: sans-serif;
+}
+#pit {
+	border: 2px solid black;
+	background-color: black;
+	position: absolute;
+	left: 5px;
+	top: 5px;
+}
+
+.portrait #pit {
+	height: 375px;
+	width: 250px;
+}
+
+.landscape #pit {
+	height: 250px;
+	width: 375px;
+}
+
+#controls {
+	position: absolute;
+	top: 387px;
+	left: 5px;
+	border: 2px solid black;
+	padding: 6px;
+}
+
+.portrait #controls {
+	width: 238px;
+}
+
+ul#stats {
+	font-size: .8em;
+	margin-bottom: 6px;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	position: relative;
+}
+
+.portrait #pause {
+	position: absolute;
+	top: 5px;
+	left: 150px;
+}
+
+.block {
+	height: 19px;
+	width: 19px;
+	position: absolute;
+}
+
+.C, .c {
+	background-color: #00BFFF;
+	border: 3px #00FFFF inset;
+}
+
+.I, .i {
+	background-color: #FF0000;
+	border: 3px #F24444 inset;
+}
+
+.J, .j {
+	background-color: #FF00FF;
+	border: 3px #F244F2 inset;
+}
+
+.L, .l {
+	background-color: #FFD700;
+	border: 3px #FFFF00 inset;
+}
+
+.S, .s {
+	background-color: #0000FF;
+	border: 3px #4444F2 inset;
+}
+
+.T, .t {
+	background-color: #808080;
+	border: 3px #A9A9A9 inset;
+}
+
+.Z, .z {
+	background-color: #00FF00;
+	border: 3px #ADFF2F inset;
+}
