@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>You're Playing Tetris!</title>
-	<meta name="viewport" content="width=device-width, height=device-height, user-scalable=no">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
@@ -11,9 +11,6 @@
 
 <div id="controls">
 
-<!-- 	<p id="blockreport"></p>
-	<p id="fitreport"></p>
-	<p id="action"></p> -->
 	<ul id="stats">
 		<li>Time: <span id="time">00:00</span></li>
 		<li>Lines: <span id="lines">0</span></li>
@@ -25,7 +22,7 @@
 
 <!-- Uncomment the following for non-touch controls (for testing on desktop)-->
 
-<!-- <div id="browserButtons">
+<div id="browserButtons">
 		<br>
 		<br>
 		<button onclick="block.moveLeft()">Move Left</button>
@@ -35,7 +32,7 @@
 		<button onclick="block.rotate('counter')">Rotate Counterclockwise</button>
 		<br>
 		<button onclick="block.dropToBottom()">Drop</button>
-</div> -->
+</div>
 
 </div>
 
@@ -43,31 +40,25 @@
 
 	var lines = 0;
 	var score = 0;
-	var userLocation = "test";
-	var gameTime = 0;
 	var tetris = 0;
+	var userLocation = "";
+	var gameTime = 0;
 	var paused = false;
 	var gameOver = false;
-	var rowNumbers = true;
 	var blank = " ";
 
 	//
 	// Sound effects
 	//
 	var clearRowSound = new Audio("sounds/clear-row.wav");
-	var touchSound = new Audio("sounds/touch.wav")
 
 	//
 	// Initial device orientation detection
 	//
-	var initialOrientation = "";
-
-	// Get the width and height of the browser window
-	// and set initialOrientation to portrait or landscape accordingly
 
 	width = window.innerWidth;
 	height = window.innerHeight;
-	initialOrientation = (width > height ? "landscape" : "portrait");
+	var initialOrientation = (width > height ? "landscape" : "portrait");
 	document.body.className = initialOrientation;
 
 	// Track whether the browser window orientation changes.
@@ -92,7 +83,7 @@
 
 		if (initialOrientation != newOrientation) {
 			if (!paused) {pause();}
-			alert("Your device orientation has changed from " + initialOrientation + " to " + newOrientation + ". Please return your device to its original position, lock your screen orientation, or start a new game to play in " + newOrientation + " mode.");
+			alert("Your device orientation has changed from " + initialOrientation + " to " + newOrientation + ". Please return your device to its original position or start a new game to play in " + newOrientation + " mode.");
 		} 
 	}
 
@@ -126,64 +117,46 @@
 		changeX = startX-endX;
 		changeY = startY-endY;
 
-		if (Math.abs(changeX) < 7 && Math.abs(changeY) < 7) {
-			touchSound.play();
-			touchSound.currentTime=0;
-			action = "clockwise";								// Tap
-			block.rotate('clockwise');
+		if (Math.abs(changeX) < 11 && Math.abs(changeY) < 11) {
+			block.rotate('clockwise');						// Tap
 		}
 		else {
 			if (Math.abs(changeX) > Math.abs(changeY)) {
 				if (changeX > 0) {
-					touchSound.play();
-					touchSound.currentTime=0;
-					action = "left";
 					block.moveLeft();						// Left swipe
 				}
 				else {
-					touchSound.play();
-					touchSound.currentTime=0;
-					action = "right";
 					block.moveRight();						// Right swipe
 				}
 			}
 			else {
 				if (changeY > 0) {
-					touchSound.play();
-					touchSound.currentTime=0;
-					action = "counter-clockwise";				// Up swipe
-					block.rotate('counter');
+					block.rotate('counter');				// Up swipe
 				}	
 				else {
-					touchSound.play();
-					touchSound.currentTime=0;
-					action = "fall";							// Down swipe
-					block.dropToBottom();
+					block.dropToBottom();					// Down swipe
 				}
 			}
 		}
-
-/*		document.getElementById('action').innerHTML = action;
-*/	}
-
-	function updateScores() {
-		document.getElementById('lines').innerHTML = lines;
-		document.getElementById('score').innerHTML = score;
 	}
+
+	//
+	// Pit class
+	//
 
 	function Pit(orientation,blank) {
 
 		this.orientation = orientation;
 		this.blank = blank;
 		
-		// Set width and height of pit based on screen orientation
+		// Set width and height of pit matrix based on screen orientation
 		this.w = (this.orientation == "landscape" ? 15 : 10);
 		this.h = (this.orientation == "landscape" ? 10 : 15);
 
 		// Find center of pit -- where new blocks appear
 		this.center = (parseInt(this.w/2))-1;
 
-		// Add new blank row (array) at top of pit based on width
+		// Add new blank row (array) of n "columns" at top of pit matrix based on n width
 		this.addRow = function() {
 			var newRow = new Array();
 			for (var i = 0; i < this.w; i++) {
@@ -192,18 +165,20 @@
 			this.matrix.unshift(newRow);
 		}
 
-		// Create pit matrix of blank rows based on height 
+		// Create pit matrix of n blank rows based on n height 
 		this.matrix = new Array();
 		for (var i = 0; i < this.h; i++) {
 			this.addRow();
 		}
 
-		// Update matrix space
+		// Update matrix space (when block piece enters or leaves it)
 		this.updateSpace = function(column,row,character) {
 			this.matrix[row][column] = character;
 		}
 
-
+		// Render pit HTML based on current pit matrix
+		// "Letter" class based on block type determines color of block div
+		// X and Y values of matrix space determine left and right position values of block div
 		this.printPit = function() {
 			var pitHTML = ""
 			for (var i = 0; i < this.h; i++) {
@@ -216,6 +191,7 @@
 			document.getElementById('pit').innerHTML = pitHTML;
 		}
 
+		// Find last free row down from a particular row for a particular column
 		this.getLastFreeRowForColumn = function(column, currentRow) {
 			var lastFreeRow = this.h-1;
 			for (var row = currentRow+1; row < this.h; row++) {
@@ -227,6 +203,7 @@
 			return lastFreeRow;
 		}
 
+		// Find last free column to right from a particular column for a particular row
 		this.getLastFreeColumnToRightForRow = function(currentColumn, row) {
 			var lastFreeColumn = this.w-1;
 			for (var column = currentColumn + 1; column < this.w; column++) {
@@ -238,6 +215,7 @@
 			return lastFreeColumn;
 		}
 
+		// Find last free column to left from a particular column for a particular row
 		this.getLastFreeColumnToLeftForRow = function(currentColumn, row) {
 			var lastFreeColumn = 0;
 			for (var column = currentColumn - 1; column >= 0; column--) {
@@ -249,8 +227,9 @@
 			return lastFreeColumn;
 		}
 
+		// Check for completed rows (after a block has finished dropping)
 		this.checkRows = function() {
-			var turnLines = 0;
+			var turnLines = 0;					// Track rows completed per "turn" for scoring purposes
 			for (var i = 0; i < this.h; i++) {
 				var full = true;
 				for (var j = 0; j < this.w; j++) {
@@ -259,21 +238,20 @@
 					}
 				}
 				if (full) {
-					clearRowSound.play();
-					this.matrix.splice(i,1);
-					this.addRow();
+					clearRowSound.play();		// Sound effect for cleared row
+					this.matrix.splice(i,1);	// Remove cleared row
+					this.addRow();				// Add new blank row at top of pit
 					turnLines++;
 				}
 			}
 			return turnLines;
 		}
-	} // end of class
+	} // end of Pit class
 
 	function Block() {
 
 		// Randomly set block type
 		var typeNumber = Math.floor(Math.random()*7);
-		// var typeNumber = 0;
 		var types = ["C","I","J","L","S","T","Z"];
 		this.type = types[typeNumber];
 
@@ -282,8 +260,10 @@
 		this.top = 0;
 		this.left = pit.center;
 
+		// Block type definitions: X,Y coordinates of filled matrix spaces 
+		// from top left (0,0) of block, for each block type at each rotation
 		this.blockSpots = {
-			'C': {
+			'C': {				// Cube
 				0: [
 					[0,0],
 					[1,0],
@@ -309,7 +289,7 @@
 					[1,1]
 				]
 			},
-			'I': {
+			'I': {			// Stick
 				0: [
 					[0,0],
 					[0,1],
@@ -335,7 +315,7 @@
 					[3,0]
 				]
 			},
-			'L': {
+			'L': {			// L shape
 				0: [
 					[0,0],
 					[0,1],
@@ -361,7 +341,7 @@
 					[2,1]
 				]
 			},
-			'J': {
+			'J': {			// Reverse L shape
 				0: [
 					[1,0],
 					[1,1],
@@ -387,7 +367,7 @@
 					[2,1]
 				]
 			},
-			'T': {
+			'T': {			// T shape
 				0: [
 					[0,0],
 					[1,0],
@@ -413,7 +393,7 @@
 					[0,2]
 				]
 			},
-			'S': {
+			'S': {			// Zigzag or S shape
 				0: [
 					[1,0],
 					[2,0],
@@ -439,7 +419,7 @@
 					[1,2]
 				]
 			},
-			'Z': {
+			'Z': {			// Reverse zigzag
 				0: [
 					[0,0],
 					[1,0],
@@ -467,6 +447,7 @@
 			}
 		}
 
+		// Check whether new block will fit in pit
 		this.testBlock = function() {
 			var fits = true;
 			var inPit = false;
@@ -490,33 +471,34 @@
 			}
 		}
 
+		// Draw, erase, or redraw block in new position after drop or left/right move
 		this.drawBlock = function(mode) {
 			if (mode == "move") {
 				character = this.type;
 			}
 			else if (mode == "final") {
-				character = this.type.toLowerCase();
+				character = this.type.toLowerCase();	// Lowercase characters for blocks done dropping
 			}
 			else {
-				character = blank;
+				character = blank;						// To erase block from previous position
 			}
-			for (var i = 0; i < 4; i++)	{
+			for (var i = 0; i < 4; i++)	{				// Each block has four filled matrix spaces
 				var X = this.blockSpots[this.type][this.rotation][i][0] + this.left;
 				var Y = this.blockSpots[this.type][this.rotation][i][1] + this.top;
 				if (Y >= 0) {pit.updateSpace(X,Y,character);}
 			}
-			pit.printPit();
+			pit.printPit();								// Redraw pit HTML after block is moved
 		}
 
 		// Drop block one space, reset timer to drop again unless at last free row
 		this.drop = function() {
 			if (!paused) {
 				var bottomLimit = this.findBottomLimit();
-				if (this.top < bottomLimit) {
+				// If block has space to move, erase, increment top value, and redraw
+				if (this.top < bottomLimit) { 
 					this.drawBlock("erase");
 					this.top++;
-/*					document.getElementById('blockreport').innerHTML = 'Block is at row ' + this.top;
-*/					this.drawBlock("move");
+					this.drawBlock("move");
 					window.setTimeout("block.drop()",1000);
 				}
 				else {
@@ -525,6 +507,7 @@
 			}
 		}
 
+		// Move block one space to the right if possible
 		this.moveRight = function() {
 			if (!paused) {
 				var rightLimit = this.findRightLimit();
@@ -536,6 +519,7 @@
 			}
 		}
 
+		// Move block one space to the left if possible
 		this.moveLeft = function() {
 			if (!paused) {
 				var leftLimit = this.findLeftLimit();
@@ -547,6 +531,7 @@
 			}
 		}
 
+		// Drop all the way to the last available row
 		this.dropToBottom = function() {
 			if (!paused) {
 				var bottomLimit = this.findBottomLimit();
@@ -558,11 +543,17 @@
 			}	
 		}
 
-		// Find lowest point block can drop to
+		// Find lowest point block can drop to by checking each column block occupies
+		// starting from current position of block
 		this.findBottomLimit = function() {
 			var bottomLimit = pit.h-1;
+			// Get list of matrix spaces (from top left of block) occupied at current rotation
 			var spots = this.blockSpots[this.type][this.rotation];
-			for (var i = 0; i < 4; i++) {
+			// Get last free row for each occupied matrix space,
+			// update limit if a more restrictive limit (obstacle) is found
+			// (Lowercase characters for blocks done dropping prevent false positive obstacles --
+			//	so block doesn't register itself as an obstacle)
+			for (var i = 0; i < 4; i++) {		
 				var columnToCheck = spots[i][0] + this.left;
 				var rowToStartFrom = spots[i][1] + this.top;
 				var bottomForColumn = pit.getLastFreeRowForColumn(columnToCheck,rowToStartFrom)
@@ -606,10 +597,7 @@
 			return leftLimit;
 		}
 
-		//
-		// Rotation!
-		//
-
+		// Rotation
 		this.rotate = function(direction) {
 			if (!paused) {
 				// Get new rotation, clockwise +90 or counterclockwise -90
@@ -622,17 +610,16 @@
 					if (newRotation < 0) {newRotation = 270;} // if past 0, reset to 270
 				}
 				
-				// Check to see if block will move outside pit with new rotation,
-				// or overlap existing blocks
+				// Check to see if block will be outside pit boundaries at new rotation,
+				// or overlap existing blocks (top left remains unchanged after rotation,
+				// therefore vertically oriented blocks with no space to their right may not rotate)
 				var illegalRotation = false;
-				var spotsChecked = "";
 				for (var i = 0; i < 4; i++) {
 					var newColumn = this.blockSpots[this.type][newRotation][i][0] + this.left;
 					var newRow = this.blockSpots[this.type][newRotation][i][1] + this.top;
 					if (newColumn >= pit.w || (pit.matrix[newColumn][newRow] != pit.blank && pit.matrix[newColumn][newRow] != this.type)) {
 						illegalRotation = true;
 					}
-					spotsChecked += newColumn + "," + newRow + ";";
 				}
 
 				// If block will stay in bounds, erase, set new rotation, and redraw
@@ -645,38 +632,40 @@
 		}
 	} // end of class
 
+	//
+	// Game play
+	//
 
+	// Start turn: create new block from Block class, draw in pit if there's room
+	// and start dropping unless block is already at bottom limit
 	function startTurn() {
 		// Create new block and draw in pit
 		block = new Block();
-/*		block.drawBlock("move");
-		window.setTimeout("block.drop()",1000);*/
 
 		// Make sure block will fit at top of pit
 		var fits = block.testBlock();
 
 		if (fits == true) {
 			if (block.top === 0) {			// If entire block fits, draw and start dropping
-/*				document.getElementById("fitreport").innerHTML = "Fits!";
-*/				block.drawBlock("move");
+				block.drawBlock("move");
 				window.setTimeout("block.drop()",1000);
 			}
-			else {							// FIGURE OUT WHY THIS ISN'T EXECUTING!!!
-/*				document.getElementById("fitreport").innerHTML = "Fits partially";
-*/				block.drawBlock("final");	// If only part will fit, draw as final and end game
+			else {							// ***This doesn't seem to execute -- can't figure out why!
+				block.drawBlock("final");	// If only part will fit, draw as final and end game
 				endGame();
 			}
 		}
 		else {							
-/*			document.getElementById("fitreport").innerHTML = "Does not fit";
-*/			endGame();						// If no part will fit, end game without drawing block
+			endGame();						// If no part will fit, end game without drawing block
 		}
 	}
 
+
+	// End turn -- redraw block with lowercase letters, check for completed rows, 
+	// score turn, and start new turn
 	function endTurn() {
 		// Set block characters to lowercase
 		block.drawBlock("final");
-/*		document.getElementById('blockreport').innerHTML = 'Block is at row ' + block.top + ' and is done dropping';*/
 
 		// Check for completed rows
 		var rowsCompleted = pit.checkRows();
@@ -689,8 +678,7 @@
 		startTurn();
 	}
 
-	// Score turn and update scoreboard based on lines completed
-	// then start new turn with a new block
+	// Score turn based on lines completed
 	function scoreTurn(rowsCompleted) {
 		lines += rowsCompleted;
 		switch (rowsCompleted) {
@@ -720,13 +708,20 @@
 		}
 	}
 
+	// Update scoreboard
+	function updateScores() {
+		document.getElementById('lines').innerHTML = lines;
+		document.getElementById('score').innerHTML = score;
+	}
+
+	// End game -- save score locally and send to server
 	function endGame() {
 		gameOver = true;
-/*		document.getElementById('blockreport').innerHTML = 'Block is at row ' + block.top + " and GAME OVER!";
-*/		saveScore();
+		saveScore();
 		sendScoreToServer();
 	}
 
+	// If user clicks End Game button, confirm they really want to quit
 	function confirmEnd() {
 		if (!paused) {pause()};
 		var check=confirm("Are you sure you want to quit? Press 'OK' to end this game, or 'Cancel' to keep playing.");
@@ -739,10 +734,21 @@
 
 	}
 
-	//
-	// Save score at end of game
-	//
+	// Save score locally
+	function saveScore() {
+		gameRecord = {};
+		gameRecord.lines = lines;
+		gameRecord.score = score;
+		gameRecord.gameTime = gameTimeReadable;
+		var alertText = "Good game!\n\nRound Time: "+gameTimeReadable+"\nScore: "+score+"\nLines Completed: "+lines+"\n\nEnter your name to save your score! (Or hit Cancel to save your score anonymously.)";
+		gameRecord.name = prompt(alertText); // Ask for user's name
+		if (gameRecord.name==null || gameRecord.name == "") {gameRecord.name = "Anonymous";}
+		var recordId = Date.now();
+		localStorage.setItem(recordId, JSON.stringify(gameRecord));
+	}
 
+
+	// Get user's location if possible and send score to server
 	function positionHandler(Position) {
 		var latitude = Position.coords.latitude;
 		var longitude = Position.coords.longitude;
@@ -760,36 +766,20 @@
 	function sendScoreToServer() {
 		getLocation();
 		var webSocketData = "Name="+gameRecord.name+"&HighScore="+score+"&Location="+userLocation;
-		// var websocket = new WebSocket('ws://technologeeks.com/e65/submit.php?user=johanna.bodnyk')
-		var websocket = new WebSocket('ws://echo.websocket.org');
+		var websocket = new WebSocket('ws://technologeeks.com/e65/submit.php?user=johanna.bodnyk')
+		// var websocket = new WebSocket('ws://echo.websocket.org');
 		websocket.onopen = function() {
 			websocket.send(webSocketData);
 		}
-		websocket.onmessage = function (evt) { // For testing with echo.websocket.org
+/*		websocket.onmessage = function (evt) { // For testing with echo.websocket.org
 			console.log("Message received: " + evt.data);
-		}
-		window.location = 'main.html';
-	}
-
-	function saveScore() {
-		// Save score locally
-		gameRecord = {};
-		gameRecord.lines = lines;
-		gameRecord.score = score;
-		gameRecord.gameTime = gameTimeReadable;
-		var alertText = "Good game!\n\nRound Time: "+gameTimeReadable+"\nScore: "+score+"\nLines Completed: "+lines+"\n\nEnter your name to save your score! (Or hit Cancel to save your score anonymously.)";
-		gameRecord.name = prompt(alertText);
-		if (gameRecord.name==null || gameRecord.name == "") {gameRecord.name = "Anonymous";}
-		var recordId = Date.now();
-		localStorage.setItem(recordId, JSON.stringify(gameRecord));
-
-		// Get location to send to server, open send via websocket after location is check
-		getLocation();
+		}*/
+		window.location = 'main.html'; // Return to home screen to view scores or start new game
 	}
 
 
 	//
-	// Pause and resume game
+	// Pause and resume
 	//
 	function pause() {
 		if (!paused) {
@@ -836,7 +826,7 @@
 	// Create pit object
 	var pit = new Pit(initialOrientation,blank);
 
-	// Print blank bit
+	// Print empty pit
 	pit.printPit();
 	
 	// Start game with new turn, and start game timer
