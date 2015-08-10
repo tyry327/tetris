@@ -17,12 +17,14 @@
 		<li>Score: <span id="score">0</span></li>
 	</ul>
 
-<button id="pause" onclick="pause()" ontouchend="pause()">Pause</button><br>
-<button id="end" onclick="confirmEnd()" ontouchend="confirmEnd()">End Game</button>
+<div id="buttons">
+	<button id="pause" ontouchend="pause()">Pause</button><br>
+	<button id="end" ontouchend="confirmEnd()">End Game</button>
+</div>
 
 <!-- Uncomment the following for non-touch controls (for testing on desktop)-->
 
-<div id="browserButtons">
+<!-- <div id="browserButtons">
 		<br>
 		<br>
 		<button onclick="block.moveLeft()">Move Left</button>
@@ -32,7 +34,7 @@
 		<button onclick="block.rotate('counter')">Rotate Counterclockwise</button>
 		<br>
 		<button onclick="block.dropToBottom()">Drop</button>
-</div>
+</div> -->
 
 </div>
 
@@ -766,14 +768,15 @@
 	function sendScoreToServer() {
 		getLocation();
 		var webSocketData = "Name="+gameRecord.name+"&HighScore="+score+"&Location="+userLocation;
-		var websocket = new WebSocket('ws://technologeeks.com/e65/submit.php?user=johanna.bodnyk')
-		// var websocket = new WebSocket('ws://echo.websocket.org');
+		// Technologeeks websocket protocol does not seem to work (returns a 200 error)
+		// var websocket = new WebSocket('ws://technologeeks.com/e65/submit.php?user=johanna.bodnyk')
+		var websocket = new WebSocket('ws://echo.websocket.org');
 		websocket.onopen = function() {
 			websocket.send(webSocketData);
 		}
-/*		websocket.onmessage = function (evt) { // For testing with echo.websocket.org
+		websocket.onmessage = function (evt) { // For testing with echo.websocket.org
 			console.log("Message received: " + evt.data);
-		}*/
+		}
 		window.location = 'main.html'; // Return to home screen to view scores or start new game
 	}
 
