@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>You're Playing Tetris!</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="viewport" content="width=320, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
@@ -17,24 +17,24 @@
 		<li>Score: <span id="score">0</span></li>
 	</ul>
 
-<div id="buttons">
-	<button id="pause" ontouchend="pause()">Pause</button><br>
-	<button id="end" ontouchend="confirmEnd()">End Game</button>
-</div>
+	<div id="buttons">
+		<button id="pause" ontouchend="pause()" onclick="pause()">Pause</button><br>
+		<button id="end" ontouchend="confirmEnd()" onclick="confirmEnd()">End Game</button>
+	</div>
 
-<!-- Uncomment the following for non-touch controls (for testing on desktop)-->
+	<!-- Uncomment the following for non-touch controls (for testing on desktop)-->
 
-<!-- <div id="browserButtons">
-		<br>
-		<br>
-		<button onclick="block.moveLeft()">Move Left</button>
-		<button onclick="block.moveRight()">Move Right</button>
-		<br>
-		<button onclick="block.rotate('clockwise')">Rotate</button>
-		<button onclick="block.rotate('counter')">Rotate Counterclockwise</button>
-		<br>
-		<button onclick="block.dropToBottom()">Drop</button>
-</div> -->
+	<!--<div id="browserButtons">-->
+			<!--<br>-->
+			<!--<br>-->
+			<!--<button onclick="block.moveLeft()">Move Left</button>-->
+			<!--<button onclick="block.moveRight()">Move Right</button>-->
+			<!--<br>-->
+			<!--<button onclick="block.rotate('clockwise')">Rotate Right</button>-->
+			<!--<button onclick="block.rotate('counter')">Rotate Left</button>-->
+			<!--<br>-->
+			<!--<button onclick="block.dropToBottom()">Drop</button>-->
+	<!--</div>-->
 
 </div>
 
@@ -182,7 +182,7 @@
 		// "Letter" class based on block type determines color of block div
 		// X and Y values of matrix space determine left and right position values of block div
 		this.printPit = function() {
-			var pitHTML = ""
+			var pitHTML = "";
 			for (var i = 0; i < this.h; i++) {
 				for (var j = 0; j < this.w; j++) {
 					if (this.matrix[i][j] != this.blank) {
