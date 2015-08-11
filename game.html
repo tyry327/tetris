@@ -7,6 +7,8 @@
 </head>
 <body>
 
+<div id="wrapper">
+
 <div id="pit"></div>
 
 <div id="controls">
@@ -22,21 +24,21 @@
 		<button id="end" ontouchend="confirmEnd()" onclick="confirmEnd()">End Game</button>
 	</div>
 
-	<!-- Uncomment the following for non-touch controls (for testing on desktop)-->
+	<!-- Non-touch controls (for desktop use)-->
 
-	<!--<div id="browserButtons">-->
-			<!--<br>-->
-			<!--<br>-->
-			<!--<button onclick="block.moveLeft()">Move Left</button>-->
-			<!--<button onclick="block.moveRight()">Move Right</button>-->
-			<!--<br>-->
-			<!--<button onclick="block.rotate('clockwise')">Rotate Right</button>-->
-			<!--<button onclick="block.rotate('counter')">Rotate Left</button>-->
-			<!--<br>-->
-			<!--<button onclick="block.dropToBottom()">Drop</button>-->
-	<!--</div>-->
+	<label><input type="checkbox" id="showClickableButtons" onclick="toggleClickableButtons(event)">Show clickable buttons</label>
+
+	<div id="clickableButtons">
+			<button onclick="block.moveLeft()">Move Left</button>
+			<button onclick="block.moveRight()">Move Right</button><br>
+			<button onclick="block.rotate('clockwise')">Rotate Right</button>
+			<button onclick="block.rotate('counter')">Rotate Left</button><br>
+			<button onclick="block.dropToBottom()">Drop</button>
+	</div>
 
 </div>
+
+	</div>
 
 <script>
 
@@ -821,6 +823,19 @@
 	window.addEventListener('touchend', touchEnd, false);
 	window.addEventListener('deviceorientation', orientationCheck, false);
 
+
+	// Show/hide clickable controls
+	function toggleClickableButtons(e) {
+
+		clickableDiv = document.getElementById('clickableButtons');
+
+		if(e.target.checked) {
+			clickableDiv.style.display = 'block';
+		}
+		else {
+			clickableDiv.style.display = 'none';
+		}
+	}
 
 	//
 	// Initialize new game

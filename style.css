@@ -1,12 +1,26 @@
 body {
 	font-family: sans-serif;
 }
+
+#wrapper {
+	position: relative;
+	margin: 0 auto;
+}
+
+.portrait #wrapper {
+	width: 250px;
+}
+
+.landscape #wrapper {
+	width: 505px;
+}
+
 #pit {
 	border: 2px solid black;
 	background-color: black;
 	position: absolute;
-	left: 5px;
-	top: 5px;
+	left: 0px;
+	top: 0px;
 }
 
 .portrait #pit {
@@ -27,22 +41,26 @@ body {
 
 .portrait #controls {
 	top: 389px;
-	left: 5px;
+	left: 0px;
 	width: 238px;
 }
 
 .landscape #controls {
-	top: 5px;
+	top: 0px;
 	left: 389px;
+	width: 100px;
 }
 
 ul#stats {
 	font-size: .8em;
-	margin-bottom: 6px;
 	list-style-type: none;
-	margin: 0;
+	margin: 0 0 6px 0;
 	padding: 0;
 	position: relative;
+}
+
+ul#stats li {
+	margin-bottom: 4px;
 }
 
 .portrait #pause {
@@ -55,6 +73,20 @@ ul#stats {
 	position: absolute;
 	top: 40px;
 	left: 150px;
+}
+
+label {
+	font-size:.8em;
+}
+
+#clickableButtons {
+	display: none;
+	margin-top: 10px;
+}
+
+#controls button {
+	margin: 0 10px 10px 0;
+	width: 90px;
 }
 
 
