@@ -4,4 +4,4 @@ Assignment for CSCI E-65: Building Mobile Apps: A Comparative View of Mobile App
 
 <br>
 
-&copy; 2013 Johanna Bodnyk, all rights reserved.
+&copy; 2013 Johanna Bodnyk, All Rights Reserved.
