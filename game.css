@@ -29,26 +29,6 @@
 	width: 375px;
 }
 
-#controls {
-	border: 2px solid black;
-	padding: 6px;
-	background-color: rgba(46, 141, 162, 0.82);
-    border-radius: 5%;
-    float: right;
-}
-
-.portrait #controls {
-
-}
-
-.landscape #controls {
-	top: 0px;
-	left: 10px;
-	width: 130px;
-	text-align: center;
-	float: right;
-}
-
 ul#stats {
 	font-size: .8em;
 	list-style-type: none;
