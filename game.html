@@ -3,53 +3,61 @@
 <head>
 	<title>You're Playing Tetris!</title>
 	<meta name="viewport" content="width=320, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-	<link rel="stylesheet" type="text/css" href="style.css">
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<link rel="stylesheet" type="text/css" href="game.css">
 </head>
 <body>
 
-<div id="wrapper">
+	<div id="wrapper">
 
-<div id="pit"></div>
+		<div id="pit"></div>
 
-<div id="controls">
+		<div id="controls">
 
-	<ul id="stats">
-		<li>Time: <span id="time">00:00</span></li>
-		<li>Lines: <span id="lines">0</span></li>
-		<li>Score: <span id="score">0</span></li>
-	</ul>
+			<ul id="stats">
+				<li>Time: <span id="time">00:00</span></li>
+				<li>Lines: <span id="lines">0</span></li>
+				<li>Score: <span id="score">0</span></li>
+			</ul>
 
-	<div id="buttons">
-		<button id="pause" ontouchend="pause()" onclick="pause()">Pause</button><br>
-		<button id="end" ontouchend="confirmEnd()" onclick="confirmEnd()">End Game</button>
+			<div id="buttons">
+				<button id="pause" ontouchend="pause()" onclick="pause()">Pause</button><br>
+				<button id="end" ontouchend="confirmEnd()" onclick="confirmEnd()">End Game</button>
+			</div>
+
+			<!-- Non-touch controls (for desktop use)-->
+
+			<label><input type="checkbox" id="showClickableButtons" onclick="toggleClickableButtons(event)">Show mouse-clickable buttons</label>
+
+			<div id="clickableButtons">
+				<button onclick="block.moveLeft()">Move Left</button>
+				<button onclick="block.moveRight()">Move Right</button><br>
+				<button onclick="block.rotate('clockwise')">Rotate Right</button>
+				<button onclick="block.rotate('counter')">Rotate Left</button><br>
+				<button onclick="block.dropToBottom()">Drop</button>
+			</div>
+
+		</div>
+
 	</div>
 
-	<!-- Non-touch controls (for desktop use)-->
+	<script>
 
-	<label><input type="checkbox" id="showClickableButtons" onclick="toggleClickableButtons(event)">Show mouse-clickable buttons</label>
-
-	<div id="clickableButtons">
-			<button onclick="block.moveLeft()">Move Left</button>
-			<button onclick="block.moveRight()">Move Right</button><br>
-			<button onclick="block.rotate('clockwise')">Rotate Right</button>
-			<button onclick="block.rotate('counter')">Rotate Left</button><br>
-			<button onclick="block.dropToBottom()">Drop</button>
-	</div>
-
-</div>
-
-	</div>
-
-<script>
-
-	var lines = 0;
-	var score = 0;
-	var tetris = 0;
-	var userLocation = "";
-	var gameTime = 0;
-	var paused = false;
-	var gameOver = false;
-	var blank = " ";
+		var lines = 0;
+		var score = 0;
+		var tetris = 0;
+		var userLocation = "";
+		var gameTime = 0;
+		var paused = false;
+		var gameOver = false;
+		var blank = " ";
 
 	//
 	// Sound effects
@@ -269,184 +277,184 @@
 		this.blockSpots = {
 			'C': {				// Cube
 				0: [
-					[0,0],
-					[1,0],
-					[0,1],
-					[1,1]
+				[0,0],
+				[1,0],
+				[0,1],
+				[1,1]
 				],
 				90: [
-					[0,0],
-					[1,0],
-					[0,1],
-					[1,1]
+				[0,0],
+				[1,0],
+				[0,1],
+				[1,1]
 				],
 				180: [
-					[0,0],
-					[1,0],
-					[0,1],
-					[1,1]
+				[0,0],
+				[1,0],
+				[0,1],
+				[1,1]
 				],
 				270: [
-					[0,0],
-					[1,0],
-					[0,1],
-					[1,1]
+				[0,0],
+				[1,0],
+				[0,1],
+				[1,1]
 				]
 			},
 			'I': {			// Stick
 				0: [
-					[0,0],
-					[0,1],
-					[0,2],
-					[0,3]
+				[0,0],
+				[0,1],
+				[0,2],
+				[0,3]
 				],
 				90: [
-					[0,0],
-					[1,0],
-					[2,0],
-					[3,0]
+				[0,0],
+				[1,0],
+				[2,0],
+				[3,0]
 				],
 				180: [
-					[0,0],
-					[0,1],
-					[0,2],
-					[0,3]
+				[0,0],
+				[0,1],
+				[0,2],
+				[0,3]
 				],
 				270: [
-					[0,0],
-					[1,0],
-					[2,0],
-					[3,0]
+				[0,0],
+				[1,0],
+				[2,0],
+				[3,0]
 				]
 			},
 			'L': {			// L shape
 				0: [
-					[0,0],
-					[0,1],
-					[0,2],
-					[1,2]
+				[0,0],
+				[0,1],
+				[0,2],
+				[1,2]
 				],
 				90: [
-					[0,0],
-					[1,0],
-					[2,0],
-					[0,1]
+				[0,0],
+				[1,0],
+				[2,0],
+				[0,1]
 				],
 				180: [
-					[0,0],
-					[1,0],
-					[1,1],
-					[1,2]
+				[0,0],
+				[1,0],
+				[1,1],
+				[1,2]
 				],
 				270: [
-					[2,0],
-					[0,1],
-					[1,1],
-					[2,1]
+				[2,0],
+				[0,1],
+				[1,1],
+				[2,1]
 				]
 			},
 			'J': {			// Reverse L shape
 				0: [
-					[1,0],
-					[1,1],
-					[0,2],
-					[1,2]
+				[1,0],
+				[1,1],
+				[0,2],
+				[1,2]
 				],
 				90: [
-					[0,0],
-					[0,1],
-					[1,1],
-					[2,1]
+				[0,0],
+				[0,1],
+				[1,1],
+				[2,1]
 				],		
 				180: [
-					[0,0],
-					[1,0],
-					[0,1],
-					[0,2]
+				[0,0],
+				[1,0],
+				[0,1],
+				[0,2]
 				],
 				270: [
-					[0,0],
-					[1,0],
-					[2,0],
-					[2,1]
+				[0,0],
+				[1,0],
+				[2,0],
+				[2,1]
 				]
 			},
 			'T': {			// T shape
 				0: [
-					[0,0],
-					[1,0],
-					[2,0],
-					[1,1]
+				[0,0],
+				[1,0],
+				[2,0],
+				[1,1]
 				],
 				90: [
-					[1,0],
-					[0,1],
-					[1,1],
-					[1,2]
+				[1,0],
+				[0,1],
+				[1,1],
+				[1,2]
 				],		
 				180: [
-					[1,0],
-					[0,1],
-					[1,1],
-					[2,1]
+				[1,0],
+				[0,1],
+				[1,1],
+				[2,1]
 				],
 				270: [
-					[0,0],
-					[0,1],
-					[1,1],
-					[0,2]
+				[0,0],
+				[0,1],
+				[1,1],
+				[0,2]
 				]
 			},
 			'S': {			// Zigzag or S shape
 				0: [
-					[1,0],
-					[2,0],
-					[0,1],
-					[1,1]
+				[1,0],
+				[2,0],
+				[0,1],
+				[1,1]
 				],
 				90: [
-					[0,0],
-					[0,1],
-					[1,1],
-					[1,2]
+				[0,0],
+				[0,1],
+				[1,1],
+				[1,2]
 				],		
 				180: [
-					[1,0],
-					[2,0],
-					[0,1],
-					[1,1]
+				[1,0],
+				[2,0],
+				[0,1],
+				[1,1]
 				],
 				270: [
-					[0,0],
-					[0,1],
-					[1,1],
-					[1,2]
+				[0,0],
+				[0,1],
+				[1,1],
+				[1,2]
 				]
 			},
 			'Z': {			// Reverse zigzag
 				0: [
-					[0,0],
-					[1,0],
-					[1,1],
-					[2,1]
+				[0,0],
+				[1,0],
+				[1,1],
+				[2,1]
 				],
 				90: [
-					[1,0],
-					[0,1],
-					[1,1],
-					[0,2]
+				[1,0],
+				[0,1],
+				[1,1],
+				[0,2]
 				],		
 				180: [
-					[0,0],
-					[1,0],
-					[1,1],
-					[2,1]
+				[0,0],
+				[1,0],
+				[1,1],
+				[2,1]
 				],
 				270: [
-					[1,0],
-					[0,1],
-					[1,1],
-					[0,2]
+				[1,0],
+				[0,1],
+				[1,1],
+				[0,2]
 				]
 			}
 		}
@@ -656,10 +664,10 @@
 			}
 			else {							// ***This doesn't seem to execute -- can't figure out why!
 				block.drawBlock("final");	// If only part will fit, draw as final and end game
-				endGame();
-			}
+			endGame();
 		}
-		else {							
+	}
+	else {							
 			endGame();						// If no part will fit, end game without drawing block
 		}
 	}
@@ -687,24 +695,24 @@
 		lines += rowsCompleted;
 		switch (rowsCompleted) {
 			case 0:
-				tetris = 0;
-				break;
+			tetris = 0;
+			break;
 			case 1:
-				tetris = 0;
-				score += 100;
-				break;
+			tetris = 0;
+			score += 100;
+			break;
 			case 2:
-				tetris = 0;
-				score += 300;
-				break;
+			tetris = 0;
+			score += 300;
+			break;
 			case 3:
-				tetris = 0;
-				score += 600;
-				break;
+			tetris = 0;
+			score += 600;
+			break;
 			case 4:
-				tetris ++;
-				score += 800;
-				break;
+			tetris ++;
+			score += 800;
+			break;
 		}
 		if (tetris == 2) {
 			score += 1600;

@@ -1,0 +1,145 @@
+#wrapper {
+	position: relative;
+	margin: 0 auto;
+}
+
+.portrait #wrapper {
+	width: 250px;
+}
+
+.landscape #wrapper {
+	width: 505px;
+}
+
+#pit {
+	border: 1px solid black;
+	background-color: rgba(100, 116, 128, 0.66);
+	position: absolute;
+	left: 0px;
+	top: 0px;
+}
+
+.portrait #pit {
+	height: 375px;
+	width: 250px;
+}
+
+.landscape #pit {
+	height: 250px;
+	width: 375px;
+}
+
+#controls {
+	position: absolute;
+	border: 2px solid black;
+	padding: 6px;
+	background-color: rgba(46, 141, 162, 0.82);
+    border-radius: 5%;
+}
+
+.portrait #controls {
+	top: 389px;
+	left: 0px;
+	width: 238px;
+}
+
+.landscape #controls {
+	top: 0px;
+	left: 389px;
+	width: 100px;
+}
+
+ul#stats {
+	font-size: .8em;
+	list-style-type: none;
+	margin: 0 0 6px 0;
+	padding: 0;
+	position: relative;
+}
+
+ul#stats li {
+	margin-bottom: 4px;
+}
+
+.portrait #pause {
+	position: absolute;
+	top: 5px;
+	left: 150px;
+}
+
+.portrait #end {
+	position: absolute;
+	top: 40px;
+	left: 150px;
+}
+
+label {
+	font-size:.8em;
+}
+
+#clickableButtons {
+	display: none;
+	margin-top: 10px;
+}
+
+#controls button {
+	margin: 0 10px 10px 0;
+	width: 90px;
+}
+
+.block {
+	height: 19px;
+	width: 19px;
+	position: absolute;
+}
+
+.C, .c {
+	background-color: #00BFFF;
+	border: 3px #00FFFF inset;
+	border-radius: 25%;
+}
+
+.I, .i {
+	background-color: #FF0000;
+	border: 3px #F24444 inset;
+	border-radius: 25%;
+}
+
+.J, .j {
+	background-color: #FF00FF;
+	border: 3px #F244F2 inset;
+	border-radius: 25%;
+}
+
+.L, .l {
+	background-color: #FFD700;
+	border: 3px #FFFF00 inset;
+	border-radius: 25%;
+}
+
+.S, .s {
+	background-color: #0000FF;
+	border: 3px #4444F2 inset;
+	border-radius: 25%;
+}
+
+.T, .t {
+	background-color: #808080;
+	border: 3px #A9A9A9 inset;
+	border-radius: 25%;
+}
+
+.Z, .z {
+	background-color: #00FF00;
+	border: 3px #ADFF2F inset;
+	border-radius: 25%;
+}
+
+th {
+	font-weight: bold;
+}
+
+body {
+	background-image: url(spaceBackground.jpg);
+	background-size: 1400px 800px;
+}

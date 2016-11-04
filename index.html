@@ -2,44 +2,26 @@
 
 <html>
 <head>
-	<title>Welcome to Tetris!</title>
+	<title>TyRy's Tetris</title>
 	<link rel="apple-touch-icon" href="tetris-icon.png" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-	<style type="text/css">
-		body {
-			background-color: #ccc;
-			font-family: Helvetica, sans-serif;
-		}
-		#main{
-			background-color: #fff;
-			padding: 20px;
-		}
-		ul {
-			list-style-type: none;
-			/* border: 1px solid black; */
-			padding: 0;
-		}
-		li {
-			/*border: 1px solid black;*/
-			text-align: center;
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
-			margin-bottom: 10px;
-		}
-		button {
-			display: block;
-			margin: 0 auto 10px;
-		}
-		h1, h2 {
-			text-align: center;
-		}
-	</style>
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+	<link rel="stylesheet" type="text/css" href="index.css">
 </head>
 
 <body>
 	<div id="main">
-		<h1>Welcome to Tetris!</h1>
-		<button ontouchend="buttonHandler('game.html')" onclick="buttonHandler('game.html')">New Game</button>
-		<button id="scores" ontouchend="buttonHandler('scores.html')" onclick="buttonHandler('scores.html')">High Scores</button>
+		<h1>TyRy's Tetris</h1>
+		<button ontouchend="buttonHandler('game.html')" onclick="buttonHandler('game.html')" type="button" class="btn btn-info">New Game</button>
+		<button id="scores" ontouchend="buttonHandler('scores.html')" onclick="buttonHandler('scores.html')" type="button" class="btn btn-info">High Scores</button>
 	</div>
 
 	<script type="text/javascript">

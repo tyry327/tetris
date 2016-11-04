@@ -1,0 +1,12 @@
+body {
+	background-image: url(TetrisBackground.jpg);
+	background-size: auto;
+}
+
+#main {
+	text-align: center;
+}
+
+h1 {
+	color: #2aabd2;
+}
