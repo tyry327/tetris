@@ -38,7 +38,8 @@
 }
 
 .portrait #controls {
-	width: 200px;
+	width: 300px;
+	float: bottom;
 }
 
 .landscape #controls {
