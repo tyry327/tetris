@@ -34,16 +34,7 @@
 	padding: 6px;
 	background-color: rgba(46, 141, 162, 0.82);
     border-radius: 5%;
-}
-
-.portrait #controls {
-	width: 270px;
-	text-align: center;
-	float: right;
-}
-
-.landscape #controls {
-	width: 130px;
+    width: 130px;
 	text-align: center;
 	float: right;
 }
@@ -94,43 +85,43 @@ label {
 
 .C, .c {
 	background-color: #00BFFF;
-	border: 12px #00FFFF inset;
+	border: 12px #00FFFF groove;
 	border-radius: 15%;
 }
 
 .I, .i {
 	background-color: #FF0000;
-	border: 12px #F24444 inset;
+	border: 12px #F24444 groove;
 	border-radius: 15%;
 }
 
 .J, .j {
 	background-color: #FF00FF;
-	border: 12px #F244F2 inset;
+	border: 12px #F244F2 groove;
 	border-radius: 15%;
 }
 
 .L, .l {
 	background-color: #FFD700;
-	border: 12px #FFFF00 inset;
+	border: 12px #FFFF00 groove;
 	border-radius: 15%;
 }
 
 .S, .s {
 	background-color: #0000FF;
-	border: 12px #4444F2 inset;
+	border: 12px #4444F2 groove;
 	border-radius: 15%;
 }
 
 .T, .t {
 	background-color: #808080;
-	border: 12px #A9A9A9 inset;
+	border: 12px #A9A9A9 groove;
 	border-radius: 15%;
 }
 
 .Z, .z {
 	background-color: #00FF00;
-	border: 12px #ADFF2F inset;
+	border: 12px #ADFF2F groove;
 	border-radius: 15%;
 }
 
