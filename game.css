@@ -38,8 +38,8 @@
 }
 
 .portrait #controls {
-	width: 300px;
-	float: bottom;
+	width: 500px;
+	padding-top: 300px;
 }
 
 .landscape #controls {
