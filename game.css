@@ -38,12 +38,12 @@
 }
 
 .portrait #controls {
-	top: 389px;
-	left: 0px;
 	width: 500px;
 }
 
 .landscape #controls {
+	top: 0px;
+	left: 10px;
 	width: 130px;
 	text-align: center;
 }
