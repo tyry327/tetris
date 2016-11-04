@@ -40,13 +40,15 @@
 .portrait #controls {
 	top: 389px;
 	left: 0px;
-	width: 238px;
+	width: 300px;
+	text-align: center;
 }
 
 .landscape #controls {
 	top: 0px;
 	left: 389px;
-	width: 100px;
+	width: 130px;
+	text-align: center;
 }
 
 ul#stats {
@@ -82,7 +84,7 @@ label {
 	margin-top: 10px;
 }
 
-#controls button {
+#controls .buttons {
 	margin: 0 10px 10px 0;
 	width: 90px;
 }
@@ -95,44 +97,44 @@ label {
 
 .C, .c {
 	background-color: #00BFFF;
-	border: 3px #00FFFF inset;
-	border-radius: 25%;
+	border: 12px #00FFFF inset;
+	border-radius: 15%;
 }
 
 .I, .i {
 	background-color: #FF0000;
-	border: 3px #F24444 inset;
-	border-radius: 25%;
+	border: 12px #F24444 inset;
+	border-radius: 15%;
 }
 
 .J, .j {
 	background-color: #FF00FF;
-	border: 3px #F244F2 inset;
-	border-radius: 25%;
+	border: 12px #F244F2 inset;
+	border-radius: 15%;
 }
 
 .L, .l {
 	background-color: #FFD700;
-	border: 3px #FFFF00 inset;
-	border-radius: 25%;
+	border: 12px #FFFF00 inset;
+	border-radius: 15%;
 }
 
 .S, .s {
 	background-color: #0000FF;
-	border: 3px #4444F2 inset;
-	border-radius: 25%;
+	border: 12px #4444F2 inset;
+	border-radius: 15%;
 }
 
 .T, .t {
 	background-color: #808080;
-	border: 3px #A9A9A9 inset;
-	border-radius: 25%;
+	border: 12px #A9A9A9 inset;
+	border-radius: 15%;
 }
 
 .Z, .z {
 	background-color: #00FF00;
-	border: 3px #ADFF2F inset;
-	border-radius: 25%;
+	border: 12px #ADFF2F inset;
+	border-radius: 15%;
 }
 
 th {
